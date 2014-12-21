@@ -8,4 +8,4 @@ if [ $(($free * 100 / $total)) -le $ok_perc ];then
 else
   state='normal'
 fi
-echo "{'host':'`hostname -f`', 'service':'free-mem','metric':$free,'state':'$state'}"
+echo "{'host':'`hostname -f`', 'service':'memory','metric':$free,'state':'$state'}"
