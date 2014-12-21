@@ -27,7 +27,7 @@ cloner() {
         cd $tmp_dir
         git clone $clone_repo
         cp tmp/cron.d/* ${cron_dir}/
-        cp -r tmp/crocodile/ ${src_dir}/
+        cp -r tmp/crocodile/* ${src_dir}
         chmod -R +x ${src_dir}
         mv $sha_tmp $sha
         rm -rf $tmp_dir
