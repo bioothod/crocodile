@@ -1,1 +1,1 @@
-2 * * * * root /etc/crocodile/sender.py
+*/2 * * * * root /etc/crocodile/sender.py
