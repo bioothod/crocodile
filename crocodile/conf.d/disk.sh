@@ -1,5 +1,2 @@
 #!/bin/bash
-#get list of all disks????
-
-
-#echo "{'host':'`hostname -f`', 'service':'disk','metric':$free,'state':'$state'}"
+echo "{'host':'example.org','service':'temp-m','metric':666,'state':'error'}"
