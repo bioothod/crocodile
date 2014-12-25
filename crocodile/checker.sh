@@ -9,6 +9,7 @@ cron_dir='/etc/cron.d'
 src_dir='/etc/crocodile'
 conf_dir="${src_dir}/conf.d"
 code='ororo'
+flag='old'
 
 #checking directory
 dir_chk() {
@@ -17,6 +18,8 @@ dir_chk() {
         fi
         if [ ! -d $src_dir ]; then
                 mkdir $src_dir
+		flag='new'
+		echo 'New installation'
         fi
         if [ ! -d $conf_dir ]; then
                 mkdir $conf_dir
@@ -36,9 +39,17 @@ cloner() {
 
 #checking if there is any new commits with $code word
 updater() {
-#       if [ ! -f $sha ] || [[ `shasum $sha |awk {'print $1'}` != `shasum $sha_tmp |awk {'print $1'}` ]] || [ `grep $code $sha_tmp | wc -l` -ge 1 ]; then
+	if [ $flag == 'new' ]; then
+		echo 'Clean installation'
+		cloner
+		exit 0
+	fi
+#checking code word in last commit
+	if [[ `shasum $sha |awk {'print $1'}` != `shasum $sha_tmp |awk {'print $1'}` ]] && [ `grep $code $sha_tmp | wc -l` -ge 1 ]; then
+		echo 'special word found!'
                 cloner
-#       fi
+		exit 0
+	fi
 }
 
 main() {
