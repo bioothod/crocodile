@@ -10,6 +10,7 @@ src_dir='/etc/crocodile'
 conf_dir="${src_dir}/conf.d"
 code='ororo'
 
+#checking directory
 dir_chk() {
         if [ ! -d $tmp_dir ]; then
                 mkdir $tmp_dir
@@ -22,7 +23,7 @@ dir_chk() {
         fi;
 }
 
-
+#main part which clone all staff from repo
 cloner() {
         cd $tmp_dir
         git clone $clone_repo
@@ -33,6 +34,7 @@ cloner() {
         rm -rf $tmp_dir
 }
 
+#checking if there is any new commits with $code word
 updater() {
 #       if [ ! -f $sha ] || [[ `shasum $sha |awk {'print $1'}` != `shasum $sha_tmp |awk {'print $1'}` ]] || [ `grep $code $sha_tmp | wc -l` -ge 1 ]; then
                 cloner
