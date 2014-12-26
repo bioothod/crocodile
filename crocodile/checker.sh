@@ -30,11 +30,13 @@ dir_chk() {
 cloner() {
         cd $tmp_dir
         git clone $clone_repo
-        cp tmp/cron.d/* ${cron_dir}/
+        cp tmp/config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+	cp tmp/cron.d/* ${cron_dir}/
         cp -r tmp/crocodile/* ${src_dir}
         chmod -R +x ${src_dir}
         mv $sha_tmp $sha
         rm -rf $tmp_dir
+	/etc/init.d/supervisor restart
 }
 
 #checking if there is any new commits with $code word

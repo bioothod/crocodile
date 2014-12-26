@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #getting list of conf.d directory
 #executing them and sending results to all riemann instances
-import bernhard, os, subprocess, socket, ast
+import bernhard, os, subprocess, socket, ast, time
 
 #for except in sender function
 socket.setdefaulttimeout(2)
@@ -24,7 +24,9 @@ def sender(message):
 			pass
 
 #checking/running/sending
-for x in os.listdir(confd):
-	out = riemsend(confd+x)
-	q = ast.literal_eval(out)
-	sender(q)
+while True:
+	for x in os.listdir(confd):
+		out = riemsend(confd+x)
+		q = ast.literal_eval(out)
+		sender(q)
+	time.sleep(2)
