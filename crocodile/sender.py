@@ -29,4 +29,4 @@ while True:
 		out = riemsend(confd+x)
 		q = ast.literal_eval(out)
 		sender(q)
-	time.sleep(2)
+	time.sleep(10)

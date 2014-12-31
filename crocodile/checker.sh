@@ -30,12 +30,13 @@ dir_chk() {
 cloner() {
         cd $tmp_dir
         git clone $clone_repo
-        cp tmp/config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+        cp tmp/config/supervisord.conf /etc/supervisor/conf.d/crocodile.conf
 	cp tmp/cron.d/* ${cron_dir}/
         cp -r tmp/crocodile/* ${src_dir}
         chmod -R +x ${src_dir}
         mv $sha_tmp $sha
         rm -rf $tmp_dir
+	supervisorctl reread && supervisorctl update
 	/etc/init.d/supervisor restart
 }
 
