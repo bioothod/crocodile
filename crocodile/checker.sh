@@ -3,8 +3,9 @@
 sha='/tmp/1'
 sha_tmp='/tmp/2'
 tmp_dir='/tmp/croco'
-repo='https://api.github.com/repos/megacrab/tmp'
-clone_repo='https://github.com/megacrab/tmp.git'
+repo='https://api.github.com/repos/bioothod/crocodile'
+clone_repo='https://github.com/bioothod/crocodile.git'
+init='/etc/init.d/supervisord'
 cron_dir='/etc/cron.d'
 src_dir='/etc/crocodile'
 conf_dir="${src_dir}/conf.d"
@@ -30,14 +31,16 @@ dir_chk() {
 cloner() {
         cd $tmp_dir
         git clone $clone_repo
-        cp tmp/config/supervisord.conf /etc/supervisor/conf.d/crocodile.conf
-	cp tmp/cron.d/* ${cron_dir}/
+	mkdir -p /etc/supervisor/conf.d
+        cp crocodile/supervisord/supervisord.conf /etc/supervisor/conf.d/crocodile.conf
+	cp crocodile/supervisord/supervisord.sh $init
+	cp crocodile/cron.d/* ${cron_dir}/
         cp -r tmp/crocodile/* ${src_dir}
         chmod -R +x ${src_dir}
         mv $sha_tmp $sha
         rm -rf $tmp_dir
 	supervisorctl reread && supervisorctl update
-	/etc/init.d/supervisor restart
+	$init restart
 }
 
 #checking if there is any new commits with $code word
