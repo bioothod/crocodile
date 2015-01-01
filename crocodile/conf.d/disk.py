@@ -47,7 +47,9 @@ def disk_usage(clients, dev, path):
     message['host'] = socket.getfqdn()
     message['service'] = 'disk ' + dev
     message['metric'] = free
+    message['total'] = total
     message['state'] = 'info'
+    message['used_percentage'] = percent
     if percent > 85:
         message['state'] = 'error'
     elif percent > 80:
