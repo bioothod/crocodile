@@ -11,21 +11,21 @@ confd = '/etc/crocodile/conf.d/'
 rlist = {'ioremap.net':5555}
 
 def riemsend(scrpt):
-	p = subprocess.Popen([scrpt], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	out, err = p.communicate()
-	return out
+    p = subprocess.Popen([scrpt], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = p.communicate()
+    return out
 
 def sender(message):
-	for rhost in rlist:
-		try:
-			c = bernhard.Client(host=rhost, port=rlist[rhost])
-			c.send(message)
-		except:
-			pass
+    for rhost in rlist:
+        try:
+            c = bernhard.Client(host=rhost, port=rlist[rhost])
+            c.send(message)
+        except:
+            pass
 
 #checking/running/sending
 while True:
-	for x in os.listdir(confd):
+    for x in os.listdir(confd):
         try:
             out = riemsend(confd+x)
             q = ast.literal_eval(out)
@@ -33,4 +33,4 @@ while True:
         except Exception as e:
             print "Got exception", e
             pass
-	time.sleep(10)
+    time.sleep(10)
