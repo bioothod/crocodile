@@ -1,9 +1,12 @@
 #!/bin/bash
 #check free mem
-ok_perc=30
+error_perc=20
+warning_perc=30
 total=`free -m |grep Mem |awk {' print $2 '}`
 free=`free -m |grep buffers/cache |awk {' print $3 '}`
-if [ $(($free * 100 / $total)) -le $ok_perc ];then 
+if [ $(($free * 100 / $total)) -le $error_perc ];then 
+  state='error'
+elif [ $(($free * 100 / $total)) -le $warning_perc ];then 
   state='warning'
 else
   state='normal'
