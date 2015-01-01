@@ -31,6 +31,6 @@ while True:
             q = ast.literal_eval(out)
             sender(q)
         except Exception as e:
-            print "Got exception running", x, ": ", e
+            print "Got exception running", x, ": ", e, ": ", out
             pass
     time.sleep(10)
