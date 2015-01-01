@@ -47,13 +47,13 @@ def disk_usage(clients, dev, path):
     message['host'] = socket.getfqdn()
     message['service'] = 'disk ' + dev
     message['metric'] = free
-    message['state'] = 'ok'
+    message['state'] = 'info'
     if percent > 85:
         message['state'] = 'error'
-        send_all(clients, message)
     elif percent > 80:
         message['state'] = 'warning'
-        send_all(clients, message)
+
+    send_all(clients, message)
 
 def send_all(clients, message):
     for c in clients:
