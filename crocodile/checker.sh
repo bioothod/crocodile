@@ -31,11 +31,14 @@ dir_chk() {
 cloner() {
         cd $tmp_dir
         git clone $clone_repo
-	mkdir -p /etc/supervisor/conf.d
+	mkdir -p /etc/supervisor/conf.d /var/log/supervisor
+
         cp crocodile/supervisord/supervisord.conf /etc/supervisor/conf.d/crocodile.conf
 	cp crocodile/supervisord/supervisord.sh $init
+	chmod 755 $init
+
 	cp crocodile/cron.d/* ${cron_dir}/
-        cp -r tmp/crocodile/* ${src_dir}
+        cp -r crocodile/crocodile/* ${src_dir}
         chmod -R +x ${src_dir}
         mv $sha_tmp $sha
         rm -rf $tmp_dir
