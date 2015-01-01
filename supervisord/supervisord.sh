@@ -21,7 +21,7 @@ PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC="Description of the service"
 NAME=supervisord
 DAEMON=/usr/local/bin/supervisord
-DAEMON_ARGS=""
+DAEMON_ARGS="-c /etc/supervisor/conf.d/supervisor.conf"
 PIDFILE=/var/run/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
 
