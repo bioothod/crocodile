@@ -9,6 +9,7 @@ init='/etc/init.d/supervisord'
 cron_dir='/etc/cron.d'
 src_dir='/etc/crocodile'
 conf_dir="${src_dir}/conf.d"
+supervisor_crocodile_conf='/etc/supervisor/conf.d/crocodile.conf'
 code='ororo'
 flag='old'
 
@@ -33,7 +34,8 @@ cloner() {
         git clone $clone_repo
 	mkdir -p /etc/supervisor/conf.d /var/log/supervisor
 
-        cp crocodile/supervisord/supervisord.conf /etc/supervisor/conf.d/crocodile.conf
+        cp crocodile/supervisord/supervisord.conf $supervisor_crocodile_conf
+	ln -s $supervisor_crocodile_conf /etc/supervisor/conf.d/supervisor.conf
 	cp crocodile/supervisord/supervisord.sh $init
 	chmod 755 $init
 
