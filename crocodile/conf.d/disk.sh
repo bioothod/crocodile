@@ -10,10 +10,10 @@ while read -r line; do
 	fi
 
 	used=`echo $line | awk {'print $5'} | sed -e 's/%//g'`
-	if test $used -ge $error_perc; then
+	if test $used -gt $error_perc; then
 		state='error'
 		break
-	elif test $used -ge $warning_perc; then
+	elif test $used -gt $warning_perc; then
 		state='warning'
 	fi
 done <<< "$space"
