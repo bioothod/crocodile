@@ -4,6 +4,7 @@ warning_perc=80
 state='normal'
 
 space=`df -t ext4`
+echo "["
 while read -r line; do
 	if test x"`echo $line | grep Filesystem`" != x""; then
 		continue
@@ -20,3 +21,4 @@ while read -r line; do
 
 	echo "{'host':'`hostname -f`', 'service':'$disk', 'metric':'$avail', 'state':'$state', 'description': ''}"
 done <<< "$space"
+echo "]"
