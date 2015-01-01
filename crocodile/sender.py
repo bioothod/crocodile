@@ -11,7 +11,8 @@ confd = '/etc/crocodile/conf.d/'
 rlist = {'ioremap.net':5555}
 
 def run_process(scrpt):
-    p = subprocess.Popen([scrpt], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    args = ",".join("{!s}:{!r}".format(key,val) for (key,val) in rlist.items())
+    p = subprocess.Popen([scrpt, args], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = p.communicate()
     return out
 
