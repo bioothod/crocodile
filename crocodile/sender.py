@@ -10,7 +10,7 @@ confd = '/etc/crocodile/conf.d/'
 #list of riemann instances
 rlist = {'ioremap.net':5555}
 
-def riemsend(scrpt):
+def run_process(scrpt):
     p = subprocess.Popen([scrpt], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = p.communicate()
     return out
@@ -27,7 +27,7 @@ def sender(message):
 while True:
     for x in os.listdir(confd):
         try:
-            out = riemsend(confd+x)
+            out = run_process(confd+x)
             q = ast.literal_eval(out)
             sender(q)
         except Exception as e:
