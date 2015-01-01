@@ -8,7 +8,7 @@ socket.setdefaulttimeout(2)
 
 confd = '/etc/crocodile/conf.d/'
 #list of riemann instances
-rlist = {'178.62.17.42':5555, '172.17.42.1':5555}
+rlist = {'ioremap.net':5555}
 
 def riemsend(scrpt):
 	p = subprocess.Popen([scrpt], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
