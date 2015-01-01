@@ -29,6 +29,8 @@ while True:
     for x in os.listdir(confd):
         try:
             out = run_process(confd+x)
+            if len(out) == 0:
+                continue
             q = ast.literal_eval(out)
             sender(q)
         except Exception as e:

@@ -57,7 +57,6 @@ def disk_usage(clients, dev, path):
 
 def send_all(clients, message):
     for c in clients:
-        print "%s -> %s" % (message, c)
         c.send(message)
 
 if __name__ == '__main__':
