@@ -26,7 +26,11 @@ def sender(message):
 #checking/running/sending
 while True:
 	for x in os.listdir(confd):
-		out = riemsend(confd+x)
-		q = ast.literal_eval(out)
-		sender(q)
+        try:
+            out = riemsend(confd+x)
+            q = ast.literal_eval(out)
+            sender(q)
+        except Exception as e:
+            print "Got exception", e
+            pass
 	time.sleep(10)
