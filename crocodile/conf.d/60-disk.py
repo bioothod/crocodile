@@ -47,13 +47,19 @@ def disk_usage(clients, dev, path):
     message['host'] = socket.getfqdn()
     message['service'] = 'disk ' + dev
     message['metric'] = free
-    message['total'] = total
     message['state'] = 'info'
-    message['used_percentage'] = percent
+
     if percent > 86:
         message['state'] = 'error'
     elif percent > 80:
         message['state'] = 'warning'
+
+    attr = {}
+    attr['total'] = total
+    attr['used'] = used
+    attr['free'] = free
+    attr['used_percentage'] = percent
+    message['attributes'] = attr
 
     send_all(clients, message)
 
