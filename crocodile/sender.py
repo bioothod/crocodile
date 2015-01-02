@@ -31,6 +31,10 @@ scripts_timeouts = {}
 while True:
     timeout = 10
     for x in os.listdir(confd):
+        # when script name starts with digits, consider it as timeout for this
+        # script in seconds. 60-disk.py will be started once per 60 seconds,
+        # by defualt scripts timeout is 10 seconds
+
         m = re.search('^\d+', x)
         if m != None:
             wake_up_time = scripts_timeouts.get(x)
