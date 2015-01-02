@@ -50,7 +50,7 @@ def disk_usage(clients, dev, path):
     message['total'] = total
     message['state'] = 'info'
     message['used_percentage'] = percent
-    if percent > 85:
+    if percent > 86:
         message['state'] = 'error'
     elif percent > 80:
         message['state'] = 'warning'
