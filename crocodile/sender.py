@@ -32,9 +32,9 @@ while True:
     timeout = 10
     for x in os.listdir(confd):
         m = re.search('^\d+', x)
-        if m not None:
+        if m != None:
             wake_up_time = scripts_timeouts.get(x)
-            if wake_up_time not None:
+            if wake_up_time != None:
                 if time.time() < wake_up_time:
                     tm = wake_up_time - time.time()
                     if tm < timeout:
