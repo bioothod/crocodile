@@ -6,7 +6,7 @@ import bernhard, os, subprocess, socket, ast, time, re, logging
 #for except in sender function
 socket.setdefaulttimeout(2)
 
-logging.basicConfig(format='%(asctime)s %(levelname): s%(message)s', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level=logging.INFO)
 
 confd = '/etc/crocodile/conf.d/'
 #list of riemann instances
@@ -47,7 +47,7 @@ while True:
 
             if tm < timeout:
                 timeout = tm
-        try
+        try:
             out = run_process(confd+x)
             logging.info('%s: completed: out: \'%s\', timeout: %d', x, out, timeout)
             if len(out) == 0:
