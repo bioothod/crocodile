@@ -4,7 +4,7 @@
 import bernhard, os, subprocess, socket, ast, time, re, logging
 
 #for except in sender function
-socket.setdefaulttimeout(2)
+socket.setdefaulttimeout(5)
 
 logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level=logging.INFO)
 
