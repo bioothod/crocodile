@@ -14,6 +14,7 @@ rlist = {'ioremap.net':5555}
 sender_clients = []
 
 def init_clients():
+    global sender_clients
     sender_clients = []
     for rhost in rlist:
         c = bernhard.Client(host=rhost, port=rlist[rhost])
