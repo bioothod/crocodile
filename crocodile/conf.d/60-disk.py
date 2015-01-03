@@ -78,7 +78,9 @@ if __name__ == '__main__':
         try:
             c = bernhard.Client(host=rhost, port=rlist[rhost])
             clients.append(c)
-        except:
+        except Exception as e:
+            print "disk: host: %s, port: %d, exeption: %s" % (rhost,
+                    rlist[rhost], e)
             pass
 
     for part in disk_partitions():
