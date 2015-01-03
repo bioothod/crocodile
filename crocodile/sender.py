@@ -11,6 +11,13 @@ logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level=loggi
 confd = '/etc/crocodile/conf.d/'
 #list of riemann instances
 rlist = {'ioremap.net':5555}
+sender_clients = []
+
+def init_clients():
+    sender_clients = []
+    for rhost in rlist:
+        c = bernhard.Client(host=rhost, port=rlist[rhost])
+        sender_clients.append(c)
 
 def run_process(scrpt):
     args = ",".join("{!s}:{!r}".format(key,val) for (key,val) in rlist.items())
@@ -19,17 +26,18 @@ def run_process(scrpt):
     return out
 
 def sender(message):
-    for rhost in rlist:
+    for c in sender_clients:
         try:
-            c = bernhard.Client(host=rhost, port=rlist[rhost])
             c.send(message)
-        except:
-            pass
+        except Exception as e:
+            logging.Error("exception: could not sent message '%s': %s" %
+                    (message, e))
 
 #checking/running/sending
 scripts_timeouts = {}
 while True:
     timeout = 10
+    init_clients()
     for x in os.listdir(confd):
         # when script name starts with digits, consider it as timeout for this
         # script in seconds. 60-disk.py will be started once per 60 seconds,
@@ -53,14 +61,14 @@ while True:
                 timeout = tm
         try:
             out = run_process(confd+x)
-            logging.info('%s: completed: out: \'%s\', timeout: %d', x, out, timeout)
+            logging.info('%s: completed: out: \'%s\'', x, out)
             if len(out) == 0:
                 continue
             q = ast.literal_eval(out)
             sender(q)
         except Exception as e:
-            logging.error('%s: exception: out: \'%s\', timeout: %d, error: %s',
-                    x, out, timeout, e)
+            logging.error('%s: exception: out: \'%s\', error: %s',
+                    x, out, e)
             pass
 
     time.sleep(timeout)
