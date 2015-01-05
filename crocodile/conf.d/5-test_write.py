@@ -9,7 +9,7 @@ import shutil
 import docker
 import logging
 
-logging.basicConfig(file='/var/log/supervisor/crocodile.log',
+logging.basicConfig(file='/var/log/supervisor/test_writer.log',
         format='%(asctime)s %(levelname)s: test_writer: %(message)s',
         level=logging.DEBUG)
 
