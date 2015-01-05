@@ -162,6 +162,12 @@ def check_upload():
             message['state'] = 'error'
             message['description'] = "%s" % r.text
 
+            # this error means proxy is not connected to any remote node,
+            # restart it, probably there was error with iptables and docker
+            # daemon
+            if 'insufficient results count due to checker' in r.text:
+                need_restart = True
+
         if r.status_code == requests.codes.ok:
             rep = r.json()
             try:
