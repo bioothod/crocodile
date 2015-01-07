@@ -1,9 +1,43 @@
 #!/usr/bin/python
 
-import bernhard, os, subprocess, socket, ast, sys
+import bernhard, os, subprocess, socket, ast, sys, re
 
 #for except in sender function
 socket.setdefaulttimeout(2)
+
+def elliptics_check_defragmentation(path):
+    """
+    Checks $path/elliptics/data/data.stat file
+    if it has been found, it tries to parse eblob stat there
+    if succeeded, checks whether defragmentation is being running
+    """
+
+    defrag_in_progress = False
+    defrag_description = 'no defragmentation process'
+
+    stat_file = '%s/elliptics/data/data.stat' % (path)
+    try:
+        with open(stat_file, 'r') as st:
+            stat_data = st.read()
+
+            datasort_start_time = 0
+            datasort_completion_time = 0
+
+            m = re.match('datasort_start_time: (\d+)', stat_data)
+            if m != None:
+                datasort_start_time = int(m.group(1))
+
+            m = re.match('datasort_completion_time: (\d+)', stat_data)
+            if m != None:
+                datasort_completion_time = int(m.group(1))
+
+            if datasort_start_time > datasort_completion_time:
+                defrag_in_progress = True
+                defrag_description = 'defragmentation is in progress, started at %s' % (time.ctime(datasort_start_time))
+    except Exception as e:
+        pass
+
+    return defrag_in_progress, defrag_description
 
 def disk_partitions(all=False):
     """Return all mountd partitions as a nameduple.
@@ -33,33 +67,48 @@ def disk_partitions(all=False):
     return retlist
 
 def disk_usage(clients, dev, path):
-    """Return disk usage associated with path."""
-    st = os.statvfs(path)
-    free = (st.f_bavail * st.f_frsize)
-    total = (st.f_blocks * st.f_frsize)
-    used = (st.f_blocks - st.f_bfree) * st.f_frsize
-    try:
-        percent = ret = (float(used) / total) * 100
-    except ZeroDivisionError:
-        percent = 0
-
     message = {}
     message['host'] = socket.getfqdn()
     message['service'] = 'disk ' + dev
-    message['metric'] = free
-    message['state'] = 'info'
 
-    if percent > 86:
+    try:
+        """Return disk usage associated with path."""
+        st = os.statvfs(path)
+        free = (st.f_bavail * st.f_frsize)
+        total = (st.f_blocks * st.f_frsize)
+        used = (st.f_blocks - st.f_bfree) * st.f_frsize
+        try:
+            percent = ret = (float(used) / total) * 100
+        except ZeroDivisionError:
+            percent = 0
+
+        defrag_in_progress, defrag_description = elliptics_check_defragmentation(path)
+
+        attr = {}
+        attr['total'] = total
+        attr['used'] = used
+        attr['free'] = free
+        attr['used_percentage'] = percent
+        attr['defrag_in_progress'] = defrag_in_progress
+        attr['defrag_description'] = defrag_description
+
+        message['metric'] = free
+        message['attributes'] = attr
+        message['state'] = 'info'
+
+        if defrag_in_progress:
+            if percent > 90:
+                message['state'] = 'error'
+            elif percent > 86:
+                message['state'] = 'warning'
+        else:
+            if percent > 86:
+                message['state'] = 'error'
+            elif percent > 80:
+                message['state'] = 'warning'
+    except Exception as e:
         message['state'] = 'error'
-    elif percent > 80:
-        message['state'] = 'warning'
-
-    attr = {}
-    attr['total'] = total
-    attr['used'] = used
-    attr['free'] = free
-    attr['used_percentage'] = percent
-    message['attributes'] = attr
+        message['description'] = "exception: %s" % (e)
 
     send_all(clients, message)
 
