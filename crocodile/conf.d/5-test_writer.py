@@ -51,7 +51,7 @@ def generate_signature(key, method, url, headers=None):
 
 def start_container(c):
     start_params = {
-        'Image': 'reverbrain/backrunner:1.2.7',
+        'Image': 'reverbrain/backrunner:latest',
         'Ports': [80],
         'Command': '/root/go/bin/backrunner -config /mnt/elliptics/etc/backrunner.conf -buckets /mnt/elliptics/etc/buckets.production',
     }
