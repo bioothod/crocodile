@@ -118,9 +118,9 @@ def restart_proxy(clients):
 
                     if need_restart:
                         c.stop(cnt['Id'])
-                        log.info("restart: container has been stopped: %s", cnt['Id'])
+                        logging.info("restart: container has been stopped: %s", cnt['Id'])
                     else:
-                        log.info("restart: container has been restarted and works fine: %s", cnt['Id'])
+                        logging.info("restart: container has been restarted and works fine: %s", cnt['Id'])
                         message['description'] = 'container has been restarted and wors fine: ' % (cnt['Id'])
                         need_new_container = False
         except Exception as e:
