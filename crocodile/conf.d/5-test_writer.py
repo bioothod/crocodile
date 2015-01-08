@@ -61,7 +61,10 @@ def start_container(c):
             command         = start_params['Command'],
             ports           = start_params['Ports'],
             volumes         = ['/mnt/elliptics'],
-            )
+            environment     = {
+                'GOGC': '200',
+            }
+    )
 
     nc = c.start(new_cnt['Id'],
             binds = {
