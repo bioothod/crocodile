@@ -23,11 +23,11 @@ def elliptics_check_defragmentation(path):
             datasort_start_time = 0
             datasort_completion_time = 0
 
-            m = re.match('datasort_start_time: (\d+)', stat_data)
+            m = re.search('datasort_start_time: (\d+)', stat_data)
             if m != None:
                 datasort_start_time = int(m.group(1))
 
-            m = re.match('datasort_completion_time: (\d+)', stat_data)
+            m = re.search('datasort_completion_time: (\d+)', stat_data)
             if m != None:
                 datasort_completion_time = int(m.group(1))
 
