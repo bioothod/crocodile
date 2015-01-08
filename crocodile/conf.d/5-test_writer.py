@@ -113,16 +113,15 @@ def restart_proxy(clients):
         try:
             for cnt in c.containers():
                 if 'backrunner' in cnt['Command']:
-                    c.restart(cnt)
-                    message, need_restart = check_upload()
+                    for idx in range(5):
+                        message, need_restart = check_upload()
+                        if not need_restart:
+                            break
+                        time.sleep(1)
 
                     if need_restart:
                         c.stop(cnt['Id'])
                         logging.info("restart: container has been stopped: %s", cnt['Id'])
-                    else:
-                        logging.info("restart: container has been restarted and works fine: %s", cnt['Id'])
-                        message['description'] = 'container has been restarted and wors fine: ' % (cnt['Id'])
-                        need_new_container = False
         except Exception as e:
             logging.error("restart: could not restart docker container: %s", e)
 
