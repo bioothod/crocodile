@@ -91,17 +91,6 @@ def start_container(c):
 
 def restart_proxy(clients):
     try:
-        backrunner_log = '/home/admin/elliptics/log/backrunner.log'
-        new_log = backrunner_log + '.%d' % (time.time())
-        try:
-            shutil.move(backrunner_log, new_log)
-
-            logging.info("restart: log file has been moved: %s -> %s",
-                    backrunner_log, new_log)
-        except:
-            pass
-
-
         need_new_container = True
         message = {}
         message['service'] = 'test_writer'
@@ -116,6 +105,7 @@ def restart_proxy(clients):
                     for idx in range(5):
                         message, need_restart = check_upload()
                         if not need_restart:
+                            need_new_container = False
                             break
                         time.sleep(1)
 
@@ -126,6 +116,17 @@ def restart_proxy(clients):
             logging.error("restart: could not restart docker container: %s", e)
 
         if need_new_container:
+            backrunner_log = '/home/admin/elliptics/log/backrunner.log'
+            new_log = backrunner_log + '.%d' % (time.time())
+            try:
+                shutil.move(backrunner_log, new_log)
+
+                logging.info("restart: log file has been moved: %s -> %s",
+                        backrunner_log, new_log)
+            except:
+                pass
+
+
             message = start_container(c)
     except Exception as e:
         logging.error("restart: could not start new docker container: %s", e)
