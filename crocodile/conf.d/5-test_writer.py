@@ -8,6 +8,7 @@ import urllib
 import shutil
 import docker
 import logging
+import os
 
 logging.basicConfig(filename='/var/log/supervisor/test_writer.log',
         format='%(asctime)s %(levelname)s: test_writer: %(message)s',
@@ -127,7 +128,7 @@ def restart_proxy(clients):
 
         if need_new_container:
             backrunner_log = '/home/admin/elliptics/log/backrunner.log'
-            base = os.path.basename(backrunner_log)
+            base = os.path.dirname(backrunner_log)
             new_log = '%s/%s.backrunner.log.%d' % (base, id, time.time())
             try:
                 shutil.move(backrunner_log, new_log)
