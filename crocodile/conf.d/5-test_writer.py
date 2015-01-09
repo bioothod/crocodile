@@ -101,10 +101,14 @@ def restart_proxy(clients):
         message['metric'] = 666
         message['state'] = 'error'
 
+        id = ''
+        stdout = ''
+        stderr = ''
         c = docker.Client(base_url='unix://var/run/docker.sock')
         try:
             for cnt in c.containers():
                 if 'backrunner' in cnt['Command']:
+                    id = cnt['Id']
                     for idx in range(5):
                         message, need_restart = check_upload()
                         if not need_restart:
@@ -113,16 +117,24 @@ def restart_proxy(clients):
                         time.sleep(1)
 
                     if need_restart:
-                        c.stop(cnt['Id'])
-                        logging.info("restart: container has been stopped: %s", cnt['Id'])
+                        c.stop(id)
+                        stdout = c.logs(id, stdout=True, timestamps=True)
+                        stderr = c.logs(id, stderr=True, timestamps=True)
+                        logging.info("restart: container has been stopped: %s", id)
+                        break
         except Exception as e:
             logging.error("restart: could not restart docker container: %s", e)
 
         if need_new_container:
             backrunner_log = '/home/admin/elliptics/log/backrunner.log'
-            new_log = backrunner_log + '.%d' % (time.time())
+            base = os.path.basename(backrunner_log)
+            new_log = '%s/%s.backrunner.log.%d' % (base, id, time.time())
             try:
                 shutil.move(backrunner_log, new_log)
+                with open('%s/%s.stdout' % (base, id), 'w') as f:
+                    f.write(stdout)
+                with open('%s/%s.stderr' % (base, id), 'w') as f:
+                    f.write(stderr)
 
                 logging.info("restart: log file has been moved: %s -> %s",
                         backrunner_log, new_log)
