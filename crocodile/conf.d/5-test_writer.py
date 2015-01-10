@@ -63,7 +63,7 @@ def start_container(c):
             ports           = start_params['Ports'],
             volumes         = ['/mnt/elliptics'],
             environment     = {
-                'GOGC': '200',
+                'GOGC1': '200',
             }
     )
 
