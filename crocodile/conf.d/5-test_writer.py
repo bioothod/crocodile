@@ -102,8 +102,7 @@ def restart_proxy(clients):
         message['metric'] = 666
         message['state'] = 'error'
 
-        id = ''
-        stdout = ''
+        id = 'restart'
         stderr = ''
         c = docker.Client(base_url='unix://var/run/docker.sock')
         try:
@@ -119,8 +118,7 @@ def restart_proxy(clients):
 
                     if need_restart:
                         c.stop(id)
-                        stdout = c.logs(id, stdout=True, timestamps=True)
-                        stderr = c.logs(id, stderr=True, timestamps=True)
+                        stderr = c.logs(id, stderr=True)
                         logging.info("restart: container has been stopped: %s", id)
                         break
         except Exception as e:
@@ -132,10 +130,9 @@ def restart_proxy(clients):
             new_log = '%s/%s.backrunner.log.%d' % (base, id, time.time())
             try:
                 shutil.move(backrunner_log, new_log)
-                with open('%s/%s.stdout' % (base, id), 'w') as f:
-                    f.write(stdout)
-                with open('%s/%s.stderr' % (base, id), 'w') as f:
-                    f.write(stderr)
+                if len(stderr) != 0:
+                    with open('%s/%s.stderr' % (base, id), 'w') as f:
+                        f.write(stderr)
 
                 logging.info("restart: log file has been moved: %s -> %s",
                         backrunner_log, new_log)
