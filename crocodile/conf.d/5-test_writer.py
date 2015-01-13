@@ -19,6 +19,7 @@ acl_file = '/etc/crocodile/acl.json'
 #acl_file = '/tmp/acl.json'
 acl_user = ''
 acl_token = ''
+acl_base_dir = '/home/admin/elliptics'
 acl_port = 80
 
 def load_acl():
@@ -31,6 +32,10 @@ def load_acl():
             port = j.get('port')
             if port != None:
                 acl_port = int(port)
+
+            base = j.get('base')
+            if base != None:
+                acl_base_dir = str(base)
     except Exception as e:
         logging.error("load_acl: file: %s, exception: %s", acl_file, e)
         pass
@@ -73,7 +78,7 @@ def start_container(c):
 
     nc = c.start(new_cnt['Id'],
             binds = {
-                '/home/admin/elliptics' : {
+                acl_base_dir : {
                     'bind':     '/mnt/elliptics',
                     'ro':       False,
                 },
@@ -129,7 +134,7 @@ def restart_proxy(clients):
             logging.error("restart: could not restart docker container: %s", e)
 
         if need_new_container:
-            backrunner_log = '/home/admin/elliptics/log/backrunner.log'
+            backrunner_log = '%s/log/backrunner.log' % (acl_base_dir)
             base = os.path.dirname(backrunner_log)
             new_log = '%s/%s.backrunner.log.%d' % (base, id, time.time())
             try:
