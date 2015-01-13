@@ -21,17 +21,22 @@ acl_user = ''
 acl_token = ''
 acl_base_dir = '/home/admin/elliptics'
 acl_port = 80
+acl_success_groups = 2
 
 def load_acl():
     try:
         with open(acl_file, 'r') as f:
             j = json.load(f)
-            global acl_user, acl_token
+            global acl_user, acl_token, acl_port, acl_base_dir, acl_success_groups
             acl_user = str(j['user'])
             acl_token = str(j['token'])
             port = j.get('port')
             if port != None:
                 acl_port = int(port)
+
+            success_groups = j.get('success_groups')
+            if success_groups != None:
+                acl_success_groups = int(success_groups)
 
             base = j.get('base')
             if base != None:
@@ -195,7 +200,7 @@ def check_upload():
             try:
                 sgroups = rep['reply']['success-groups']
                 egroups = rep['reply']['error-groups']
-                if len(sgroups) != 2:
+                if len(sgroups) != acl_success_groups:
                     message['state'] = 'error'
                     message['description'] = "not enough success results: %d instead of 2: %s" % (len(sgroups), r.text)
                 if len(egroups) != 0:
