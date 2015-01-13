@@ -22,12 +22,15 @@ acl_token = ''
 acl_base_dir = '/home/admin/elliptics'
 acl_port = 80
 acl_success_groups = 2
+acl_port_mapping = {
+        80 : 80
+}
 
 def load_acl():
     try:
         with open(acl_file, 'r') as f:
             j = json.load(f)
-            global acl_user, acl_token, acl_port, acl_base_dir, acl_success_groups
+            global acl_user, acl_token, acl_port, acl_base_dir, acl_success_groups, acl_port_mapping
             acl_user = str(j['user'])
             acl_token = str(j['token'])
             port = j.get('port')
@@ -37,6 +40,12 @@ def load_acl():
             success_groups = j.get('success_groups')
             if success_groups != None:
                 acl_success_groups = int(success_groups)
+
+            pm = j.get('port_mapping')
+            if pm != None:
+                acl_port_mapping = {}
+                for k, v in pm.items():
+                    acl_port_mapping[int(k)] = int(v)
 
             base = j.get('base')
             if base != None:
@@ -67,7 +76,7 @@ def generate_signature(key, method, url, headers=None):
 def start_container(c):
     start_params = {
         'Image': 'reverbrain/backrunner:latest',
-        'Ports': [80],
+        'Ports': acl_port_mapping.keys(),
         'Command': '/root/go/bin/backrunner -config /mnt/elliptics/etc/backrunner.conf -buckets /mnt/elliptics/etc/buckets.production',
     }
 
@@ -88,9 +97,7 @@ def start_container(c):
                     'ro':       False,
                 },
             },
-            port_bindings = {
-                80: 80,
-            },
+            port_bindings = acl_port_mapping,
             restart_policy = {
                 'Name': 'on-failure'
             },
