@@ -19,6 +19,7 @@ acl_file = '/etc/crocodile/acl.json'
 #acl_file = '/tmp/acl.json'
 acl_user = ''
 acl_token = ''
+acl_port = 80
 
 def load_acl():
     try:
@@ -27,6 +28,9 @@ def load_acl():
             global acl_user, acl_token
             acl_user = str(j['user'])
             acl_token = str(j['token'])
+            port = j.get('port')
+            if port != None:
+                acl_port = int(port)
     except Exception as e:
         logging.error("load_acl: file: %s, exception: %s", acl_file, e)
         pass
@@ -152,7 +156,7 @@ def check_upload():
     data = "test upload at: %s" % (time.time())
 
     host = socket.getfqdn()
-    url = "http://" + host + "/nobucket_upload/test_writer.txt"
+    url = "http://%s:%d/nobucket_upload/test_writer.txt" % (host, acl_port)
 
     headers = {}
     if acl_user != '' and acl_token != '':
