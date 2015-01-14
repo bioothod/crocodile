@@ -148,11 +148,11 @@ def restart_proxy(clients):
         if need_new_container:
             backrunner_log = '%s/log/backrunner.log' % (acl_base_dir)
             base = os.path.dirname(backrunner_log)
-            new_log = '%s/%s.backrunner.log.%d' % (base, id, time.time())
+            new_log = '%s/%s.backrunner.log.fail' % (base, id)
             try:
                 shutil.move(backrunner_log, new_log)
                 if len(stderr) != 0:
-                    with open('%s/%s.stderr' % (base, id), 'w') as f:
+                    with open('%s/%s.stderr.fail' % (base, id), 'w') as f:
                         f.write(stderr)
 
                 logging.info("restart: log file has been moved: %s -> %s",
