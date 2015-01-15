@@ -48,14 +48,15 @@ cloner() {
         mv $sha_tmp $sha
         rm -rf $tmp_dir
 
-	if [ $conf_changed == 0 ]; then
-		if [ $init_changed == 0 ]; then
-			return
-		fi
+
+	if [ $init_changed != 0 ]; then
+		$init restart
+		return
 	fi
 
-	/usr/local/bin/supervisorctl reread && /usr/local/bin/supervisorctl update
-	$init restart
+	if [ $conf_changed != 0 ]; then
+		/usr/local/bin/supervisorctl update
+	fi
 }
 
 #checking if there is any new commits with $code word
