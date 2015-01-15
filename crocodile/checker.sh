@@ -34,6 +34,9 @@ cloner() {
         git clone $clone_repo
 	mkdir -p /etc/supervisor/conf.d /var/log/supervisor
 
+	conf_changed=`diff crocodile/supervisord/supervisord.conf $supervisor_crocodile_conf | wc -l`
+	init_changed=`diff crocodile/supervisord/supervisord.sh $init | wc -l`
+
         cp crocodile/supervisord/supervisord.conf $supervisor_crocodile_conf
 	ln -s $supervisor_crocodile_conf /etc/supervisor/conf.d/supervisor.conf
 	cp crocodile/supervisord/supervisord.sh $init
@@ -44,7 +47,14 @@ cloner() {
         chmod -R +x ${src_dir}
         mv $sha_tmp $sha
         rm -rf $tmp_dir
-	supervisorctl reread && supervisorctl update
+
+	if [ $conf_changed == 0 ]; then
+		if [ $init_changed == 0 ]; then
+			return
+		fi
+	fi
+
+	/usr/local/bin/supervisorctl reread && /usr/local/bin/supervisorctl update
 	$init restart
 }
 
