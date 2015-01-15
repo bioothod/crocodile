@@ -130,12 +130,12 @@ def restart_proxy(clients):
             for cnt in c.containers():
                 if 'backrunner' in cnt['Command']:
                     id = cnt['Id']
-                    for idx in range(5):
-                        message, need_restart = check_upload()
-                        if not need_restart:
-                            need_new_container = False
-                            break
-                        time.sleep(1)
+
+                    time.sleep(1)
+                    message, need_restart = check_upload()
+                    if not need_restart:
+                        need_new_container = False
+                        break
 
                     if need_restart:
                         c.stop(id)
