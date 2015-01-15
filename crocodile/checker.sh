@@ -55,7 +55,8 @@ cloner() {
 	fi
 
 	if [ $conf_changed != 0 ]; then
-		/usr/local/bin/supervisorctl update
+		$init restart
+		return
 	fi
 }
 
