@@ -1,1 +1,1 @@
-*/5 * * * * root /etc/crocodile/checker.sh
+*/5 * * * * root /etc/crocodile/checker.sh > /dev/null 2>&1
