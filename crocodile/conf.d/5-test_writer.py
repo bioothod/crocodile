@@ -188,7 +188,7 @@ def check_upload():
     need_restart = False
 
     try:
-        r = requests.post(url, data=data, headers=headers, timeout=5)
+        r = requests.post(url, data=data, headers=headers, timeout=8)
         message['metric'] = r.status_code
         message['state'] = 'info'
 
