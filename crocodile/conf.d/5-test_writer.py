@@ -87,6 +87,8 @@ def start_container(c):
             volumes         = ['/mnt/elliptics'],
             environment     = {
                 'GOGC1': '200',
+                'GOTRACEBACK': 'crash',
+                'GODEBUG': 'gctrace=2'
             }
     )
 
@@ -139,7 +141,7 @@ def restart_proxy(clients):
 
                     if need_restart:
                         c.stop(id)
-                        stderr = c.logs(id, stderr=True)
+                        stderr = c.logs(id, stderr=True, timestamps=True)
                         logging.info("restart: container has been stopped: %s", id)
                         break
         except Exception as e:
