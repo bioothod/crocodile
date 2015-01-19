@@ -134,7 +134,7 @@ def restart_proxy(clients):
                     id = cnt['Id']
 
                     time.sleep(1)
-                    message, need_restart = check_upload()
+                    message, need_restart = check_get()
                     if not need_restart:
                         need_new_container = False
                         break
@@ -170,7 +170,51 @@ def restart_proxy(clients):
 
     return message
 
-def check_upload():
+def check_get():
+    load_acl()
+    data = "test get at: %s" % (time.time())
+
+    host = socket.getfqdn()
+    url = "http://%s:%d/ping/" % (host, acl_port)
+
+    headers = {}
+    if acl_user != '' and acl_token != '':
+        headers['Authorization'] = 'riftv1 {0}:{1}'.format(
+                acl_user,
+                generate_signature(acl_token, 'GET', url))
+
+    message = {}
+    message['service'] = 'test_writer'
+    message['host'] = host
+
+    need_restart = False
+
+    try:
+        r = requests.get(url, headers=headers, timeout=5)
+        message['metric'] = r.status_code
+        message['state'] = 'info'
+
+        if r.status_code != requests.codes.ok:
+            message['state'] = 'error'
+            message['description'] = "%s" % r.text
+
+            # this error means proxy is not connected to any remote node,
+            # restart it, probably there was error with iptables and docker
+            # daemon
+            if 'insufficient results count due to checker' in r.text:
+                need_restart = True
+
+    except Exception as e:
+        message['state'] = 'error'
+        message['description'] = "%s" % e
+        need_restart = True
+
+    logging.debug("check_get: need_restart: %s, message: %s",
+            need_restart, message)
+
+    return message, need_restart
+
+def check_upload(timeout=5):
     load_acl()
     data = "test upload at: %s" % (time.time())
 
@@ -190,7 +234,7 @@ def check_upload():
     need_restart = False
 
     try:
-        r = requests.post(url, data=data, headers=headers, timeout=8)
+        r = requests.post(url, data=data, headers=headers, timeout=timeout)
         message['metric'] = r.status_code
         message['state'] = 'info'
 
@@ -224,13 +268,13 @@ def check_upload():
         message['description'] = "%s" % e
         need_restart = True
 
-    logging.debug("check: need_restart: %s, message: %s",
+    logging.debug("check_upload: need_restart: %s, message: %s",
             need_restart, message)
 
     return message, need_restart
 
 def upload_and_restart(clients):
-    message, need_restart = check_upload()
+    message, need_restart = check_upload(5)
     if need_restart:
         message = restart_proxy(clients)
 
