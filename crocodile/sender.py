@@ -2,6 +2,7 @@
 #getting list of conf.d directory
 #executing them and sending results to all riemann instances
 import bernhard, os, subprocess, socket, ast, time, re, logging
+import singal, os, psutil
 
 #for except in sender function
 socket.setdefaulttimeout(5)
@@ -12,6 +13,12 @@ confd = '/etc/crocodile/conf.d/'
 #list of riemann instances
 rlist = {'ioremap.net':5555}
 sender_clients = []
+
+class Alarm(Exception):
+    pass
+
+def alarm_handler(signum, frame):
+    raise Alarm
 
 def init_clients():
     global sender_clients
@@ -24,6 +31,7 @@ def run_process(scrpt):
     args = ",".join("{!s}:{!r}".format(key,val) for (key,val) in rlist.items())
     p = subprocess.Popen([scrpt, args], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = p.communicate()
+
     return out
 
 def sender(message):
@@ -33,6 +41,27 @@ def sender(message):
         except Exception as e:
             logging.Error("exception: could not sent message '%s': %s" %
                     (message, e))
+
+def kill_children():
+    parent_pid = os.getpid()
+    try:
+        p = psutil.Process(parent_pid)
+
+        child_pid = p.get_children(recursive=True)
+        for pid in child_pid:
+            os.kill(pid.pid, signal.SIGKILL)
+
+    except Exception as e:
+        logging.error("Caught exception when killing children of %d" % (parent_pid))
+        logging.error("Killing self :(")
+        os.kill(0, signal.SIGKILL)
+        return
+
+# setup sigalrm as a dirty hack to workaround stuck processes
+# if process stuck, we will kill all children, and if this fails,
+# we send signal to 0 pid, i.e. whole process group of the calling process
+# cron should restart us in several minutes
+signal.signal(signal.SIGALRM, alarm_handler)
 
 #checking/running/sending
 scripts_timeouts = {}
@@ -61,15 +90,22 @@ while True:
             if tm < timeout:
                 timeout = tm
         try:
+            # The whole script processing should complete in 20 seconds
+            signal.alarm(20)
+
             out = run_process(confd+x)
             logging.info('%s: completed: out: \'%s\'', x, out)
             if len(out) == 0:
                 continue
             q = ast.literal_eval(out)
             sender(q)
+
+            signal.alarm(0) # reset signal
         except Exception as e:
             logging.error('%s: exception: out: \'%s\', error: %s',
                     x, out, e)
+
+            kill_children()
             pass
 
     time.sleep(timeout)
