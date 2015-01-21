@@ -77,7 +77,7 @@ updater() {
 
 main() {
         dir_chk
-        wget -O $sha_tmp "${repo}/commits?per_page=1"
+        wget -q -O $sha_tmp "${repo}/commits?per_page=1"
         updater
 }
 
