@@ -9,7 +9,7 @@ logging.basicConfig(filename='/var/log/supervisor/rps.log',
         format='%(asctime)s %(levelname)s: rps: %(message)s',
         level=logging.DEBUG)
 
-access_log_regexp = re.compile("(?P<prefix>.+): (?P<date>\\d+/\\d+/\\d+ \\d+:\\d+:\\d+)\\.(?P<usec>\\d+) access_log: method: '(?P<method>\\w+)', path: '(?P<path>.+)', encoded-uri: '(?P<uri>.+)', status: (?P<status>\\d+), size: (?P<size>\\d+), time: (?P<duration>[0-9\\.]+) ms, err: '(?P<error>\\w+)'")
+access_log_regexp = re.compile("(?P<prefix>.+): (?P<date>\\d+/\\d+/\\d+ \\d+:\\d+:\\d+)\\.(?P<usec>\\d+) access_log: method: '(?P<method>\\w+)', path: '(?P<path>.+)', encoded-uri: '(?P<uri>.+)', status: (?P<status>\\d+), size: (?P<size>\\d+), time: (?P<duration>[0-9\\.]+) ms, err: .*")
 generic_log_regexp = re.compile("(?P<prefix>.+): (?P<date>\\d+/\\d+/\\d+ \\d+:\\d+:\\d+)\\.(?P<usec>\\d+) .*")
 
 acl_file = '/etc/crocodile/acl.json'
@@ -34,12 +34,12 @@ class entry:
         self.date = time.time()
         self.method = ''
         self.path = ''
-        self.status = ''
-        self.size = ''
-        self.duration = ''
+        self.status = 0
+        self.size = 0
+        self.duration = 0.0
 
     def __str__(self):
-        return "%s: path: %s, status: %s, size: %d" % (time.ctime(self.date), self.path, self.status, self.size)
+        return "%s: path: %s, status: %d, size: %d" % (time.ctime(self.date), self.path, self.status, self.size)
 
 class metric:
     def __init__(self, name):
@@ -197,8 +197,7 @@ if __name__ == '__main__':
             c = bernhard.Client(host=rhost, port=rlist[rhost])
             clients.append(c)
         except Exception as e:
-            print "disk: host: %s, port: %s, exeption: %s" % (rhost,
-                    rlist[rhost], e)
+            logging.error("rps: host: %s, port: %s, exeption: %s" % (rhost, rlist[rhost], e))
             pass
 
     read_and_parse(clients, tm)
