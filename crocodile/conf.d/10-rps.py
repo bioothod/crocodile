@@ -109,6 +109,7 @@ class estimator:
             self.send_all(message)
 
 def parse_chunk(chunk, boundary_ts):
+    have_events = False
     for m in access_log_regexp.finditer(chunk):
         tm = time.mktime(time.strptime(m.group('date'), '%Y/%m/%d %H:%M:%S'))
 
@@ -120,23 +121,26 @@ def parse_chunk(chunk, boundary_ts):
         e.size = int(m.group('size'))
         e.duration = float(m.group('duration'))
 
+        have_events = True
+
         yield e
 
         if tm < boundary_ts:
             return
 
-    for m in generic_log_regexp.finditer(chunk):
-        tm = time.mktime(time.strptime(m.group('date'), '%Y/%m/%d %H:%M:%S'))
+    if not have_events:
+        for m in generic_log_regexp.finditer(chunk):
+            tm = time.mktime(time.strptime(m.group('date'), '%Y/%m/%d %H:%M:%S'))
 
 
-        # send a special empty entry to parser loop to specify that it is time
-        # to stop waiting for more events
-        if tm < boundary_ts:
-            e = entry()
-            e.date = tm
+            # send a special empty entry to parser loop to specify that it is time
+            # to stop waiting for more events
+            if tm < boundary_ts:
+                e = entry()
+                e.date = tm
 
-            yield e
-            return
+                yield e
+                return
 
 def read_and_parse(clients, timing):
     load_acl()
