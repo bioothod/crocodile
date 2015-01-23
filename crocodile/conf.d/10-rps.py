@@ -10,6 +10,7 @@ logging.basicConfig(filename='/var/log/supervisor/rps.log',
         level=logging.DEBUG)
 
 access_log_regexp = re.compile("(?P<prefix>.+): (?P<date>\\d+/\\d+/\\d+ \\d+:\\d+:\\d+)\\.(?P<usec>\\d+) access_log: method: '(?P<method>\\w+)', path: '(?P<path>.+)', encoded-uri: '(?P<uri>.+)', status: (?P<status>\\d+), size: (?P<size>\\d+), time: (?P<duration>[0-9\\.]+) ms, err: '(?P<error>\\w+)'")
+generic_log_regexp = re.compile("(?P<prefix>.+): (?P<date>\\d+/\\d+/\\d+ \\d+:\\d+:\\d+)\\.(?P<usec>\\d+) .*")
 
 acl_file = '/etc/crocodile/acl.json'
 #acl_file = '/tmp/acl.json'
@@ -123,6 +124,19 @@ def parse_chunk(chunk, boundary_ts):
         yield e
 
         if tm < boundary_ts:
+            return
+
+    for m in generic_log_regexp.finditer(chunk):
+        tm = time.mktime(time.strptime(m.group('date'), '%Y/%m/%d %H:%M:%S'))
+
+
+        # send a special empty entry to parser loop to specify that it is time
+        # to stop waiting for more events
+        if tm < boundary_ts:
+            e = entry()
+            e.date = tm
+
+            yield e
             return
 
 def read_and_parse(clients, timing):
