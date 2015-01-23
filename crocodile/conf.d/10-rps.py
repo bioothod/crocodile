@@ -5,7 +5,7 @@ import logging
 import os
 import re
 
-logging.basicConfig(filename='/var/log/supervisor/rps.log',
+logging.basicConfig(filename1='/var/log/supervisor/rps.log',
         format='%(asctime)s %(levelname)s: rps: %(message)s',
         level=logging.DEBUG)
 
@@ -110,8 +110,7 @@ class estimator:
 
 def parse_chunk(chunk, boundary_ts):
     for m in access_log_regexp.finditer(chunk):
-        tm = time.strptime(m.group('date'), '%Y/%m/%d %H:%M:%S')
-        tm = time.mktime()
+        tm = time.mktime(time.strptime(m.group('date'), '%Y/%m/%d %H:%M:%S'))
 
         e = entry()
         e.date = tm
