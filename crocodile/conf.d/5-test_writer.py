@@ -254,11 +254,14 @@ def check_upload(timeout=5):
                 sgroups = rep['reply']['success-groups']
                 egroups = rep['reply']['error-groups']
                 if len(sgroups) != acl_success_groups:
-                    message['state'] = 'error'
-                    message['description'] = "not enough success results: %d instead of 2: %s" % (len(sgroups), r.text)
+                    message['state'] = 'warning'
+                    message['description'] = "not enough success results: %d instead of %d: %s" % (len(sgroups), acl_success_groups, r.text)
                 if len(egroups) != 0:
-                    message['state'] = 'error'
+                    message['state'] = 'warning'
                     message['description'] = "there are %d error results: %s" % (len(egroups), r.text)
+                if len(sgroups) < acl_success_groups / 2:
+                    message['state'] = 'error'
+                    message['description'] = "not enough success results (less than a half of all groups): %d instead of (maximum) %d: %s" % (len(sgroups), acl_success_groups, r.text)
             except Exception as e:
                     message['state'] = 'error'
                     message['description'] = "could not parse reply: '%s': %s" % (r.text, e)
