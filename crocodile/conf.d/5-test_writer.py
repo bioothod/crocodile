@@ -300,8 +300,7 @@ if __name__ == '__main__':
             c = bernhard.Client(host=rhost, port=rlist[rhost])
             clients.append(c)
         except Exception as e:
-            print "disk: host: %s, port: %s, exeption: %s" % (rhost,
-                    rlist[rhost], e)
+            logging.error("test_writer: host: %s, port: %s, exeption: %s" % (rhost, rlist[rhost], e))
             pass
 
     upload_and_restart(clients)
