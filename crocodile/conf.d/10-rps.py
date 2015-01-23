@@ -182,7 +182,7 @@ def read_and_parse(clients, timing):
 
 if __name__ == '__main__':
     tm = 5
-    m = re.search('^\d+', sys.argv[0])
+    m = re.search('^\d+', os.path.basename(sys.argv[0]))
     if m != None:
         tm = int(m.group(0))
 
