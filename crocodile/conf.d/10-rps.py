@@ -5,7 +5,7 @@ import logging
 import os
 import re
 
-logging.basicConfig(filename1='/var/log/supervisor/rps.log',
+logging.basicConfig(filename='/var/log/supervisor/rps.log',
         format='%(asctime)s %(levelname)s: rps: %(message)s',
         level=logging.DEBUG)
 
