@@ -92,9 +92,8 @@ class estimator:
     def send_all(self, message):
         logging.info(message)
 
-        if message['metric'] != 0:
-            for c in self.clients:
-                c.send(message)
+        for c in self.clients:
+            c.send(message)
 
     def send(self):
         for k, m in self.metrics.iteritems():
@@ -111,7 +110,8 @@ class estimator:
 
 def parse_chunk(chunk, boundary_ts):
     for m in access_log_regexp.finditer(chunk):
-        tm = time.mktime(time.strptime(m.group('date'), '%Y/%m/%d %H:%M:%S'))
+        tm = time.strptime(m.group('date'), '%Y/%m/%d %H:%M:%S')
+        tm = time.mktime()
 
         e = entry()
         e.date = tm
