@@ -117,5 +117,5 @@ while True:
     if timeout > 10:
         timeout = 10
 
-    logging.debug("sender: sleeping for %d seconds", timeout)
+    logging.info("sender: sleeping for %d seconds", timeout)
     time.sleep(timeout)
