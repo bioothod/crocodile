@@ -32,7 +32,7 @@ def run_process(scrpt):
     p = subprocess.Popen([scrpt, args], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = p.communicate()
 
-    return out
+    return out, err
 
 def sender(message):
     for c in sender_clients:
@@ -89,23 +89,33 @@ while True:
 
             if tm < timeout:
                 timeout = tm
+
+        out = ''
+        err = ''
         try:
             # The whole script processing should complete in 20 seconds
             signal.alarm(20)
 
-            out = run_process(confd+x)
-            logging.info('%s: completed: out: \'%s\'', x, out)
-            if len(out) == 0:
-                continue
-            q = ast.literal_eval(out)
-            sender(q)
+            start = time.time()
+            out, err = run_process(confd+x)
+            finish = time.time()
+
+            logging.info('%s: completed: stdout: \'%s\', stderr: \'%s\', time: %f sec',
+                    x, out, err, finish - start)
+
+            if len(out) != 0:
+                q = ast.literal_eval(out)
+                sender(q)
 
             signal.alarm(0) # reset signal
         except Exception as e:
-            logging.error('%s: exception: out: \'%s\', error: %s',
-                    x, out, e)
+            logging.error('%s: exception: stdout: \'%s\', stderrr: \'%s\', error: %s', x, out, err, e)
 
             kill_children()
             pass
 
+    if timeout > 10:
+        timeout = 10
+
+    logging.debug("sender: sleeping for %d seconds", timeout)
     time.sleep(timeout)
