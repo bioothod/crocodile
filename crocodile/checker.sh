@@ -51,7 +51,7 @@ cloner() {
         rm -rf $tmp_dir
 
 	if [ $sender_changed != 0 ]; then
-		kill `ps ax | grep -c /etc/crocodile/sender.py | awk {'print $1'}`
+		kill `ps ax | grep /etc/crocodile/sender.py | grep -v grep | awk {'print $1'}`
 	fi
 
 	if [ $init_changed != 0 ]; then
