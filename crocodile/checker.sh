@@ -42,12 +42,17 @@ cloner() {
 	cp crocodile/supervisord/supervisord.sh $init
 	chmod 755 $init
 
+	sender_changed=`diff crocodile/crocodile/sender.py /etc/crocodile/sender.py | wc -l`
+
 	cp crocodile/cron.d/* ${cron_dir}/
         cp -r crocodile/crocodile/* ${src_dir}
         chmod -R +x ${src_dir}
         mv $sha_tmp $sha
         rm -rf $tmp_dir
 
+	if [ $sender_changed != 0 ]; then
+		kill `ps ax | grep -c /etc/crocodile/sender.py | awk {'print $1'}`
+	fi
 
 	if [ $init_changed != 0 ]; then
 		$init restart
