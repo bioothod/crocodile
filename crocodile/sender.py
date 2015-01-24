@@ -2,7 +2,7 @@
 #getting list of conf.d directory
 #executing them and sending results to all riemann instances
 import bernhard, os, subprocess, socket, ast, time, re, logging
-import singal, os, psutil
+import signal, os, psutil
 
 #for except in sender function
 socket.setdefaulttimeout(5)
