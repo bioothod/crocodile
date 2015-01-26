@@ -1,6 +1,10 @@
 #!/usr/bin/python
 
 import requests, json, time, sys, socket, bernhard
+import hmac
+import hashlib
+import urlparse
+import urllib
 import logging
 
 logging.basicConfig(filename='/var/log/supervisor/rps.log',
