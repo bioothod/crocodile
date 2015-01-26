@@ -22,7 +22,6 @@ class parser:
         self.host = socket.getfqdn()
 
         self.load_acl()
-        return
 
         rlist = {}
         for h in addresses.split(","):
