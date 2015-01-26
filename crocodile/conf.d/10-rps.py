@@ -105,7 +105,7 @@ class parser:
         if self.acl_user != '' and self.acl_token != '':
             headers['Authorization'] = 'riftv1 {0}:{1}'.format(
                     self.acl_user,
-                    generate_signature(self.acl_token, 'GET', url))
+                    self.generate_signature(self.acl_token, 'GET', url))
 
         text = ''
         try:
