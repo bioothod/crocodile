@@ -34,6 +34,8 @@ cloner() {
         git clone $clone_repo
 	mkdir -p /etc/supervisor/conf.d /var/log/supervisor
 
+	docker pull reverbrain/backrunner
+
 	conf_changed=`diff -N crocodile/supervisord/supervisord.conf $supervisor_crocodile_conf | wc -l`
 	init_changed=`diff -N crocodile/supervisord/supervisord.sh $init | wc -l`
 
