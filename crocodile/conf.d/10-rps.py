@@ -134,7 +134,6 @@ class parser:
 
         message = {}
         message['host'] = self.host
-        message['state'] = 'info'
 
         for hname, counters in handlers.items():
             bps = counters.get('bps')
@@ -143,6 +142,7 @@ class parser:
                 return
 
             message['service'] = 'bps %s' % (hname)
+            message['state'] = 'info'
             message['metric'] = bps
             self.send_all(message)
 
@@ -153,8 +153,13 @@ class parser:
 
             if len(rps) != 0:
                 for status, cnt in rps.items():
+                    message['state'] = 'info'
                     message['service'] = 'rps %s %s' % (status, hname)
                     message['metric'] = cnt
+
+                    if status == "500":
+                        message['state'] = 'error'
+
                     self.send_all(message)
 
 
