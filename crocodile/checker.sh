@@ -34,15 +34,15 @@ cloner() {
         git clone $clone_repo
 	mkdir -p /etc/supervisor/conf.d /var/log/supervisor
 
-	conf_changed=`diff crocodile/supervisord/supervisord.conf $supervisor_crocodile_conf | wc -l`
-	init_changed=`diff crocodile/supervisord/supervisord.sh $init | wc -l`
+	conf_changed=`diff -N crocodile/supervisord/supervisord.conf $supervisor_crocodile_conf | wc -l`
+	init_changed=`diff -N crocodile/supervisord/supervisord.sh $init | wc -l`
 
         cp crocodile/supervisord/supervisord.conf $supervisor_crocodile_conf
 	ln -s $supervisor_crocodile_conf /etc/supervisor/conf.d/supervisor.conf
 	cp crocodile/supervisord/supervisord.sh $init
 	chmod 755 $init
 
-	sender_changed=`diff crocodile/crocodile/sender.py /etc/crocodile/sender.py | wc -l`
+	sender_changed=`diff -N crocodile/crocodile/sender.py /etc/crocodile/sender.py | wc -l`
 
 	cp crocodile/cron.d/* ${cron_dir}/
         cp -r crocodile/crocodile/* ${src_dir}
