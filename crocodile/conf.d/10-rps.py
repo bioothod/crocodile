@@ -157,7 +157,7 @@ class parser:
                     message['service'] = 'rps %s %s' % (status, hname)
                     message['metric'] = cnt
 
-                    if status == "500":
+                    if status == "500" and cnt != 0:
                         message['state'] = 'error'
 
                     self.send_all(message)
