@@ -38,7 +38,7 @@ cloner() {
 	init_changed=`diff -N crocodile/supervisord/supervisord.sh $init | wc -l`
 
         cp crocodile/supervisord/supervisord.conf $supervisor_crocodile_conf
-	ln -s $supervisor_crocodile_conf /etc/supervisor/conf.d/supervisor.conf
+	ln -sf $supervisor_crocodile_conf /etc/supervisor/conf.d/supervisor.conf
 	cp crocodile/supervisord/supervisord.sh $init
 	chmod 755 $init
 
