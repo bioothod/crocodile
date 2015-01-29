@@ -37,6 +37,8 @@ class parser:
                 pass
 
     def send_all(self, message):
+        return
+
         logging.debug("send_all: %s", message)
         for c in self.clients:
             c.send(message)
