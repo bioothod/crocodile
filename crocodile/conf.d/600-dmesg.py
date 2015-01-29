@@ -80,7 +80,7 @@ class parser:
         message = {}
         message['state'] = 'error'
         message['description'] = msg
-        message['host'] = 'm7.storage.coub.com'
+        message['host'] = self.host
         message['service'] = 'dmesg'
         message['metric'] = 666
 
