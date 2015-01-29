@@ -104,8 +104,6 @@ def disk_usage(clients, dev, path):
         else:
             if percent > 86:
                 message['state'] = 'error'
-            elif percent > 83:
-                message['state'] = 'warning'
     except Exception as e:
         message['state'] = 'error'
         message['description'] = "exception: %s" % (e)
