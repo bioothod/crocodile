@@ -69,6 +69,11 @@ while True:
     timeout = 10
     init_clients()
     for x in os.listdir(confd):
+        # if script name starts with 'noscript_', it is not an executable script, but library
+
+        if re.match('^noscript_.*', x):
+            continue
+
         # when script name starts with digits, consider it as timeout for this
         # script in seconds. 60-disk.py will be started once per 60 seconds,
         # by defualt scripts timeout is 10 seconds
