@@ -156,7 +156,7 @@ class test_writer(noscript_parser.parser):
     def check_upload(self, timeout=5):
         data = "test upload at: %s" % (time.time())
 
-        url = "http://%s:%d/nobucket_upload/test_writer.txt" % (self.host, acl_port)
+        url = "http://%s:%d/nobucket_upload/test_writer.txt" % (self.host, self.acl_port)
 
         headers = {}
         if self.acl_user != '' and self.acl_token != '':
