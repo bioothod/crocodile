@@ -39,8 +39,7 @@ def sender(message):
         try:
             c.send(message)
         except Exception as e:
-            logging.Error("exception: could not sent message '%s': %s" %
-                    (message, e))
+            logging.error("exception: could not sent message '%s': %s" % (message, e))
 
 def kill_children():
     parent_pid = os.getpid()
