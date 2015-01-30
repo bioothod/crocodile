@@ -6,6 +6,7 @@ import hashlib
 import urlparse
 import urllib
 import logging
+import sys
 
 logging.basicConfig(filename='/var/log/supervisor/rps.log',
         format='%(asctime)s %(levelname)s: rps: %(message)s',
