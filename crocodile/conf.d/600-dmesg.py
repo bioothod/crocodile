@@ -8,9 +8,10 @@ import re
 re_WARN=re.compile('error|warning|fail|\(da[0-9]+:[a-z0-9]+:[0-9]+:[0-9]+:[0-9]+\)|Non-Fatal\ Error\ DRAM\ Controler|nf_conntrack')
 re_IGNORE=re.compile('acpi|ehci_hcd|uses\ 32-bit\ capabilities|GHES:\ Poll\ interval|acpi_throttle[0-9]:\ failed\ to\ attach\ P_CNT|aer|aer_init:\ AER\ service\ init\ fails|aer:\ probe\ of|arplookup|(at [0-9a-f]+)? rip[: ][0-9a-f]+ rsp[: ][0-9a-f]+ error[: ]|Attempt\ to\ query\ device\ size\ failed|check_tsc_sync_source\ failed|failed\ SYNCOOKIE\ authentication|igb:|ipfw:\ pullup\ failed|Marking\ TSC\|mfi|MOD_LOAD|MSI\ interrupts|nfs\ send\ error\ 32\ |NO_REBOOT|optimal|page\ allocation\ failure|PCI\ error\ interrupt|pid\ [0-9]+|rebuild|Resume\ from\ disk\ failed|rwsem_down|smb|swap_pager_getswapspace|thr_sleep|uhub[0-9]|ukbd|usbd|EDID|radeon|drm:r100_cp_init|Opts: errors=remount-ro|nf_conntrack version')
 re_CRIT=re.compile('I/O error|medium|defect|mechanical|retrying|broken|degraded|offline|failed|unconfigured_bad|conntrack:\ table\ full|Unrecovered read error|fs error|Medium Error|Drive ECC error')
+re_dmesg_line=re.compile('^(\d+),(\d+),(?P<timestamp>\d+),(.*);')
 
 class parser:
-    def __init__(self, addresses):
+    def __init__(self, addresses, previous):
         self.acl_file = '/etc/crocodile/acl.json'
         self.acl_user = ''
         self.acl_token = ''
@@ -22,6 +23,7 @@ class parser:
         }
         self.clients = []
         self.host = socket.getfqdn()
+        self.previous = previous
 
         rlist = {}
         for h in addresses.split(","):
@@ -37,11 +39,50 @@ class parser:
                 pass
 
     def send_all(self, message):
-        return
-
         logging.debug("send_all: %s", message)
         for c in self.clients:
             c.send(message)
+
+    def read_previous(self):
+        try:
+            with open(self.previous, 'rt') as f:
+                return json.load(f)
+        except:
+            return dict()
+
+    def write_previous(self, prev):
+        with open(self.previous, 'wt') as f:
+            json.dump(prev, f)
+
+    def check_line(self, line):
+        m = re_dmesg_line.search(line)
+        if m != None:
+            ts = int(m.group('timestamp'))
+            prev_ts = 0
+            prev_update_time = 0
+
+            prev = self.read_previous()
+            tmp = prev.get('timestamp')
+            if tmp != None:
+                prev_ts = int(tmp)
+
+            tmp = prev.get('update_time')
+            if tmp != None:
+                prev_update_time = float(tmp)
+
+            #print "ts: %d, prev_ts: %d, >: %s: %s" % (ts, prev_ts, ts > prev_ts, line)
+
+            # collect given dmesg line if it was printed after previous collection
+            # or after an hour after previous update
+
+            if ts > prev_ts or time.time() > prev_update_time + 3600:
+                prev['timestamp'] = ts
+                prev['update_time'] = time.time()
+                self.write_previous(prev)
+                return True
+
+        return False
+
 
     def dmesg(self):
         with io.open('/dev/kmsg', 'rt') as f:
@@ -50,6 +91,7 @@ class parser:
             fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
 
             content = ''
+            total_lines = 0
             while True:
                 try:
                     line = f.readline()
@@ -63,29 +105,31 @@ class parser:
                 if ignore != None:
                     continue
 
+                prefix = "CRITICAL"
                 crit = re_CRIT.search(line)
-                if crit != None:
-                    content += line
-                    continue
+                if crit == None:
+                    warn = re_WARN.search(line)
+                    if warn == None:
+                        continue
+                    prefix = "WARNING"
 
-                warn = re_WARN.search(line)
-                if warn != None:
-                    content += line
-                    continue
+                total_lines += 1
+                if self.check_line(line):
+                    content += "%s: %s" % (prefix, line)
 
             if len(content) != 0:
-                self.send_dmesg(content)
+                self.send_dmesg(content, total_lines)
 
-    def send_dmesg(self, msg):
+    def send_dmesg(self, msg, total_lines):
         message = {}
         message['state'] = 'error'
         message['description'] = msg
         message['host'] = self.host
         message['service'] = 'dmesg'
-        message['metric'] = 666
+        message['metric'] = total_lines
 
         self.send_all(message)
 
 if __name__ == '__main__':
-    p = parser(sys.argv[1])
+    p = parser(sys.argv[1], '/var/tmp/crocodile.dmsg.parser')
     p.dmesg()
