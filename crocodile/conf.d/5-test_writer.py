@@ -191,7 +191,7 @@ class test_writer(noscript_parser.parser):
                 try:
                     sgroups = rep['reply']['success-groups']
                     egroups = rep['reply']['error-groups']
-                    if len(sgroups) != acl_success_groups:
+                    if len(sgroups) != self.acl_success_groups:
                         message['state'] = 'warning'
                         message['description'] = "not enough success results: %d instead of %d: %s" % (len(sgroups), self.acl_success_groups, r.text)
                     if len(egroups) != 0:
