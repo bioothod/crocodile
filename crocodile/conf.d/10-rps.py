@@ -1,12 +1,10 @@
 #!/usr/bin/python
 
 import noscript_parser
-import hmac
-import hashlib
-import urlparse
-import urllib
+import requests
 import logging
 import sys
+import json
 
 logging.basicConfig(filename='/var/log/supervisor/rps.log',
         format='%(asctime)s %(levelname)s: rps: %(message)s',

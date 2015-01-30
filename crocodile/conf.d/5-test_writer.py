@@ -1,14 +1,12 @@
 #!/usr/bin/python
 
-import requests, json, time, sys, socket, bernhard
-import hmac
-import hashlib
-import urlparse
-import urllib
+import noscript_parser
 import shutil
 import docker
 import logging
 import os
+import sys
+import json
 
 logging.basicConfig(filename='/var/log/supervisor/test_writer.log',
         format='%(asctime)s %(levelname)s: test_writer: %(message)s',

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import requests, json, time, sys, socket, bernhard
+import json, time, sys, socket, bernhard
 import logging
 import hmac
 import hashlib
