@@ -42,7 +42,7 @@ class test_writer(noscript_parser.parser):
                     },
                 },
                 port_bindings = self.acl_port_mapping,
-                restart_policy = {
+                restart_policy1 = {
                     'Name': 'on-failure'
                 },
         )
