@@ -24,6 +24,7 @@ class parser:
         self.clients = []
         self.host = socket.getfqdn()
         self.previous = previous
+        self.uptime_seconds = self.uptime()
 
         rlist = {}
         for h in addresses.split(","):
@@ -42,6 +43,10 @@ class parser:
         logging.debug("send_all: %s", message)
         for c in self.clients:
             c.send(message)
+
+    def uptime(self):
+        with open('/proc/uptime') as f:
+            self.uptime_seconds = float(f.readline().split()[0])
 
     def read_previous(self):
         try:
@@ -74,6 +79,11 @@ class parser:
 
             # collect given dmesg line if it was printed after previous collection
             # or after an hour after previous update
+            # do not print dmesg data which is more than day old
+
+            line_time = time.time() - self.uptime_seconds + ts / 1000000
+            if line_time < time.time() - 3600 * 24:
+                return False
 
             if ts > prev_ts or time.time() > prev_update_time + 3600:
                 prev['timestamp'] = ts
