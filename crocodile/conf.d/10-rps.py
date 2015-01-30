@@ -85,5 +85,5 @@ class rps_parser(noscript_parser.parser):
 
 
 if __name__ == '__main__':
-    p = parser(sys.argv[1])
+    p = rps_parser(sys.argv[1])
     p.proxy_stat()
