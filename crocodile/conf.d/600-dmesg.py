@@ -95,5 +95,5 @@ class dmesg_parser(noscript_parser.parser):
         self.send_all(message)
 
 if __name__ == '__main__':
-    p = dmesg_parser(sys.argv[1], '/var/tmp/crocodile.dmsg.parser')
+    p = dmesg_parser(sys.argv[1], '/var/tmp/crocodile.dmesg.parser')
     p.dmesg()

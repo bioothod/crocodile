@@ -116,5 +116,5 @@ class disk_parser(noscript_parser.parser):
             self.disk_usage(part[0], part[1])
 
 if __name__ == '__main__':
-    p = dmesg_parser(sys.argv[1], '/var/tmp/crocodile.disk.parser')
+    p = disk_parser(sys.argv[1], '/var/tmp/crocodile.disk.parser')
     p.disk()
