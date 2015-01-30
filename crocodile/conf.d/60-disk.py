@@ -34,6 +34,8 @@ def elliptics_check_defragmentation(path):
             if datasort_start_time > datasort_completion_time:
                 defrag_in_progress = True
                 defrag_description = 'defragmentation is in progress, started at %s' % (time.ctime(datasort_start_time))
+                logging.info("%s: %s", path, defrag_description)
+
     except Exception as e:
         pass
 
