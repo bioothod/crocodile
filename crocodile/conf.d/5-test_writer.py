@@ -41,10 +41,7 @@ class test_writer(noscript_parser.parser):
                         'ro':       False,
                     },
                 },
-                port_bindings = self.acl_port_mapping,
-                restart_policy1 = {
-                    'Name': 'on-failure'
-                },
+                port_bindings = self.acl_port_mapping
         )
 
         logging.info("new container has been started: %s", new_cnt)
