@@ -7,6 +7,7 @@ import logging
 import os
 import sys
 import json
+import time
 
 logging.basicConfig(filename='/var/log/supervisor/test_writer.log',
         format='%(asctime)s %(levelname)s: test_writer: %(message)s',
