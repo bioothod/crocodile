@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import noscript_parser
-import bernhard, os, subprocess, socket, ast, sys, re
+import os, sys, re
 
 class disk_parser(noscript_parser.parser):
 

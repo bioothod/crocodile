@@ -8,7 +8,7 @@ import urlparse
 import urllib
 
 #for except in sender function
-socket.setdefaulttimeout(2)
+socket.setdefaulttimeout(5)
 
 class parser:
     def __init__(self, addresses, previous=None):
