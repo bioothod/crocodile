@@ -5,6 +5,7 @@ import requests
 import logging
 import sys
 import json
+import time
 
 logging.basicConfig(filename='/var/log/supervisor/discrepancy.log',
         format='%(asctime)s %(levelname)s: discrepancy: %(message)s',
