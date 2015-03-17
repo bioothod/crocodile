@@ -96,10 +96,12 @@ class stat_parser(noscript_parser.parser):
 
             message['service'] = 'discrepancy space %s' % (bname)
             message['metric'] = diff['used_space']
+            message['description'] = time.ctime()
             self.send_all(message)
 
             message['service'] = 'discrepancy records %s' % (bname)
             message['metric'] = diff['used_records']
+            message['description'] = time.ctime()
             self.send_all(message)
 
 
