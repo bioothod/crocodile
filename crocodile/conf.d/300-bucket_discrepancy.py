@@ -14,9 +14,6 @@ logging.basicConfig(filename='/var/log/supervisor/discrepancy.log',
         level=logging.DEBUG)
 
 class stat_parser(noscript_parser.parser):
-    def __init__():
-        self.addr = socket.gethostbyname(self.host)
-
     def send_error_message(self, metric, description):
         message = {}
         message['service'] = 'discrepancy'
@@ -63,14 +60,6 @@ class stat_parser(noscript_parser.parser):
 
             st = group_stat()
             for backend in backends:
-                addr = backend.get('Address')
-                if addr == None:
-                    raise Exception("group: %s: invalid json in reply: no 'Address': %s" % (group_id, backend))
-
-                # do not parse stats for non-local addresses, this should reduce number of events to be sent
-                if addr.split(':')[0] != self.addr:
-                    continue
-
                 try:
                     error = int(backend['Stat']['error']['code'])
                     if error != 0:
