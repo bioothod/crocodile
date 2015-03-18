@@ -91,6 +91,12 @@ class stat_parser(noscript_parser.parser):
                 self.send_error_message(st.records_corrupted, "bucket: %s, group: %s, corrupted records: %d" %
                         (bname, group_id, st.records_corrupted))
 
+            # do not process zero stats, this can happen either if there is no data at all, and in this case discrepancy is zero,
+            # or when there is no stat (node was down, client failed to read stat and so on), in this case discrepancy will
+            # skyrocket and is meaningless
+            if st.total == 0:
+                return
+
             if base == None:
                 base = st
                 continue
