@@ -84,6 +84,17 @@ class parser:
         with open(self.previous, 'wt') as f:
             json.dump(prev, f)
 
+    def send_error_message(self, service, metric, description):
+        message = {}
+        message['service'] = service
+        message['host'] = self.host
+        message['state'] = 'error'
+        message['metric'] = metric
+        message['description'] = description
+
+        logging.error("send_error_message: service: %s, %s", service, message['description'])
+        self.send_all(message)
+
 
     def send_all(self, message):
         logging.debug("send_all: %s", message)
