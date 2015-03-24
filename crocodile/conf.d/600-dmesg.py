@@ -96,4 +96,7 @@ class dmesg_parser(noscript_parser.parser):
 
 if __name__ == '__main__':
     p = dmesg_parser(sys.argv[1], '/var/tmp/crocodile.dmesg.parser')
-    p.dmesg()
+    try:
+        p.dmesg()
+    except Exception as e:
+        p.send_error_message('dmesg', 666, "dmesg exception: %s" % e)
