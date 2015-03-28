@@ -28,9 +28,9 @@ class test_writer(noscript_parser.parser):
                 ports           = start_params['Ports'],
                 volumes         = ['/mnt/elliptics'],
                 environment     = {
-                    'GOGC': '100',
+                    'GOGC1': '100',
                     'GOTRACEBACK': 'crash',
-                    'GODEBUG': 'invalidptr=0'
+                    'GODEBUG1': 'invalidptr=0'
                 }
         )
 
