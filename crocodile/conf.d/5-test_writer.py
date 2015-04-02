@@ -72,17 +72,30 @@ class test_writer(noscript_parser.parser):
                     if 'backrunner' in cnt['Command']:
                         id = cnt['Id']
 
-                        time.sleep(1)
                         message, need_restart = self.check_get()
                         if not need_restart:
                             need_new_container = False
                             break
 
-                        if need_restart:
-                            c.stop(id)
-                            stderr = c.logs(id, stderr=True, timestamps=True)
-                            logging.info("restart: container has been stopped: %s", id)
-                            break
+                        c.stop(id)
+                        logging.info("restart: container has been stopped: %s", id)
+                        break
+
+                # copy containers output
+                for cnt in c.containers(limit = 10):
+                    if 'backrunner' in cnt['Command']:
+                        tmp_id = cnt['Id']
+                        # if there was no running backrunner container, ID is not set
+                        # set it to the last running container, it is needed for proper log rename
+                        if id == 'restart':
+                            id = tmp_id
+
+                        fail = '%s/log/%s.stderr.fail' % (self.acl_base_dir, tmp_id)
+                        if not os.path.exist(fail):
+                            stderr = c.logs(tmp_id, stderr=True, timestamps=True)
+                            if len(stderr) != 0:
+                                with open(fail, 'w') as f:
+                                    f.write(stderr)
             except Exception as e:
                 logging.error("restart: could not restart docker container: %s", e)
 
@@ -92,9 +105,6 @@ class test_writer(noscript_parser.parser):
                 new_log = '%s/%s.backrunner.log.fail' % (base, id)
                 try:
                     shutil.move(backrunner_log, new_log)
-                    if len(stderr) != 0:
-                        with open('%s/%s.stderr.fail' % (base, id), 'w') as f:
-                            f.write(stderr)
 
                     logging.info("restart: log file has been moved: %s -> %s",
                             backrunner_log, new_log)
@@ -110,8 +120,6 @@ class test_writer(noscript_parser.parser):
         return message
 
     def check_get(self):
-        data = "test get at: %s" % (time.time())
-
         url = "http://%s:%d/ping/" % (self.host, self.acl_port)
 
         headers = {}
@@ -146,7 +154,7 @@ class test_writer(noscript_parser.parser):
             message['description'] = "%s" % e
             need_restart = True
 
-        logging.debug("check_get: need_restart: %s, message: %s",
+        logging.info("check_get: need_restart: %s, message: %s",
                 need_restart, message)
 
         return message, need_restart
@@ -206,7 +214,7 @@ class test_writer(noscript_parser.parser):
             message['description'] = "%s" % e
             need_restart = True
 
-        logging.debug("check_upload: need_restart: %s, message: %s",
+        logging.info("check_upload: need_restart: %s, message: %s",
                 need_restart, message)
 
         return message, need_restart
