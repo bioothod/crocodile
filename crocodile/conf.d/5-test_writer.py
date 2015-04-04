@@ -93,7 +93,7 @@ class test_writer(noscript_parser.parser):
                         id = tmp_id
 
                     fail = '%s/log/%s.stderr.fail' % (self.acl_base_dir, tmp_id)
-                    if not os.path.exist(fail):
+                    if not os.path.exists(fail):
                         try:
                             stderr = c.logs(tmp_id, stderr=True, timestamps=True)
                             if len(stderr) != 0:
