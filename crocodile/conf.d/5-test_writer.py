@@ -80,24 +80,27 @@ class test_writer(noscript_parser.parser):
                         c.stop(id)
                         logging.info("restart: container has been stopped: %s", id)
                         break
+            except Exception as e:
+                logging.error("restart: could not stop docker container: %s", e)
 
-                # copy containers output
-                for cnt in c.containers(limit = 10):
-                    if 'backrunner' in cnt['Command']:
-                        tmp_id = cnt['Id']
-                        # if there was no running backrunner container, ID is not set
-                        # set it to the last running container, it is needed for proper log rename
-                        if id == 'restart':
-                            id = tmp_id
+            # copy containers output
+            for cnt in c.containers(limit = 10):
+                if 'backrunner' in cnt['Command']:
+                    tmp_id = cnt['Id']
+                    # if there was no running backrunner container, ID is not set
+                    # set it to the last running container, it is needed for proper log rename
+                    if id == 'restart':
+                        id = tmp_id
 
-                        fail = '%s/log/%s.stderr.fail' % (self.acl_base_dir, tmp_id)
-                        if not os.path.exist(fail):
+                    fail = '%s/log/%s.stderr.fail' % (self.acl_base_dir, tmp_id)
+                    if not os.path.exist(fail):
+                        try:
                             stderr = c.logs(tmp_id, stderr=True, timestamps=True)
                             if len(stderr) != 0:
                                 with open(fail, 'w') as f:
                                     f.write(stderr)
-            except Exception as e:
-                logging.error("restart: could not restart docker container: %s", e)
+                        except Exception as e:
+                            logging.error("restart: could not read %s container's log: %s", tmp_id, e)
 
             if need_new_container:
                 backrunner_log = '%s/log/backrunner.log' % (self.acl_base_dir)
