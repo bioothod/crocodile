@@ -145,7 +145,7 @@ class stat_parser(noscript_parser.parser):
 
             if len(groups) != len(meta_groups):
                 self.send_error_message(200, "bucket: %s: bucket is not fully not connected: connected: %s, must be: %s"
-                        % (bname, groups.itemnames(), meta_groups.itemnames()))
+                        % (bname, groups, meta_groups))
                 continue
 
             try:
