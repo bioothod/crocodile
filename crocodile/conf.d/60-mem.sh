@@ -1,5 +1,5 @@
 #!/bin/bash
-#check free mem
+#check free memory, grab a stack trace if process ate too much RAM
 
 error_perc=20
 warning_perc=30
