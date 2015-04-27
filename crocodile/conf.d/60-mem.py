@@ -40,7 +40,7 @@ class memory_parser(noscript_parser.parser):
         message['service'] = 'memory'
         message['host'] = self.host
         message['state'] = 'normal'
-        message['metric'] = sv.percent
+        message['metric'] = sv.used
         message['description'] = ''
 
         if sv.percent > self.error:
