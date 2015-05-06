@@ -61,19 +61,6 @@ class stat_parser(noscript_parser.parser):
             st = group_stat()
             for backend in backends:
                 try:
-                    error = int(backend['Stat']['error']['code'])
-                    if error != 0:
-                        # timeout error is quite common, do not send/expire this event
-                        if error != 110:
-                            self.send_error_message(int(error), "bucket: %s, group: %s, statistics error: %d" %
-                                    (bname, group_id, error))
-
-                        # if statistics contains an error, discrepancy will always be incorrect, stop processing this bucket
-                        return
-                except Exception as e:
-                    raise Exception("group: %s: invalid json in reply: no 'Stat.error.code': %s, error: %s" % (group_id, backend, e))
-
-                try:
                     vfs = backend['Stat']['VFS']
                     st.update(vfs)
                 except Exception as e:
