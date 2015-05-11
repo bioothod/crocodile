@@ -44,8 +44,7 @@ class backends_parser(noscript_parser.parser):
         logging.info("addr: %s, backend: %d, state: %d -> %d, err: %d",
                 self.address, st.backend_id, st.state, nst.state, nst.last_start_err)
 
-        if nst.state != 1:
-            self.tried_backends += nst
+        self.tried_backends += nst
 
     def backends_stat(self):
         statuses = self.session.request_backends_status(self.address).get()[0].backends
