@@ -25,7 +25,7 @@ class backends_parser(noscript_parser.parser):
         self.logger = elliptics.Logger(backend_log, elliptics.log_level.info)
 
         cfg = elliptics.Config()
-        cfg.wait_timeout = 30
+        cfg.wait_timeout = 120
         cfg.check_timeout = 300
         cfg.io_thread_num = 1
         cfg.nonblocking_thread_num = 1
