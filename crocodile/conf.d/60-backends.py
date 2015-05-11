@@ -21,7 +21,6 @@ class backends_parser(noscript_parser.parser):
 
         self.port = 1025
         self.family = socket.AF_INET
-        #self.host = 'm2.storage.coub.com'
 
         self.logger = elliptics.Logger(backend_log, elliptics.log_level.info)
 
