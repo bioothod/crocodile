@@ -12,6 +12,7 @@ import time
 logging.basicConfig(filename='/var/log/supervisor/discrepancy.log',
         format='%(asctime)s %(levelname)s: discrepancy: %(message)s',
         level=logging.DEBUG)
+logging.getLogger().setLevel(logging.DEBUG)
 
 class stat_parser(noscript_parser.parser):
     def send_error_message(self, metric, description):

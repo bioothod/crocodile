@@ -12,6 +12,7 @@ backend_log='/var/log/supervisor/backends.log'
 logging.basicConfig(filename=backend_log,
         format='%(asctime)s %(levelname)s: backends: %(message)s',
         level=logging.DEBUG)
+logging.getLogger().setLevel(logging.DEBUG)
 
 class backends_parser(noscript_parser.parser):
     def __init__(self, addr):

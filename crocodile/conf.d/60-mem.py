@@ -11,6 +11,7 @@ import time
 logging.basicConfig(filename='/var/log/supervisor/memory.log',
         format='%(asctime)s %(levelname)s: discrepancy: %(message)s',
         level=logging.DEBUG)
+logging.getLogger().setLevel(logging.DEBUG)
 
 class memory_parser(noscript_parser.parser):
     error = 80

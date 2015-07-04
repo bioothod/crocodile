@@ -9,6 +9,7 @@ import json
 logging.basicConfig(filename='/var/log/supervisor/rps.log',
         format='%(asctime)s %(levelname)s: rps: %(message)s',
         level=logging.DEBUG)
+logging.getLogger().setLevel(logging.DEBUG)
 
 class rps_parser(noscript_parser.parser):
     def send_error_message(self, metric, description):
