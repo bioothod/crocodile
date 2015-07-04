@@ -13,6 +13,7 @@ import requests
 logging.basicConfig(filename='/var/log/supervisor/test_writer.log',
         format='%(asctime)s %(levelname)s: test_writer: %(message)s',
         level=logging.DEBUG)
+logging.getLogger().setLevel(logging.DEBUG)
 
 class test_writer(noscript_parser.parser):
     def start_container(self, c):
@@ -44,7 +45,7 @@ class test_writer(noscript_parser.parser):
                 port_bindings = self.acl_port_mapping
         )
 
-        logging.info("new container has been started: %s", new_cnt)
+        logging.info("start_container: new container has been started: %s", new_cnt)
 
         message = {}
         message['service'] = 'test_writer'
@@ -74,6 +75,8 @@ class test_writer(noscript_parser.parser):
 
                         message, need_restart = self.check_get()
                         if not need_restart:
+                            logging.info("restart_proxy: container: %s, check_get() returned ok: message: %s, need_restart: %s",
+                                id, message, need_restart)
                             need_new_container = False
                             break
 
@@ -114,7 +117,6 @@ class test_writer(noscript_parser.parser):
                 except:
                     pass
 
-
                 message = self.start_container(c)
         except Exception as e:
             logging.error("restart: could not start new docker container: %s", e)
@@ -124,6 +126,8 @@ class test_writer(noscript_parser.parser):
 
     def check_get(self):
         url = "http://%s:%d/ping/" % (self.host, self.acl_port)
+
+        logging.info("check_get: checking %s url", url)
 
         headers = {}
         if self.acl_user != '' and self.acl_token != '':
@@ -213,6 +217,7 @@ class test_writer(noscript_parser.parser):
                         message['description'] = "could not parse reply: '%s': %s" % (r.text, e)
 
         except Exception as e:
+            logging.error("could not connect to %s: %s", self.host, e)
             message['state'] = 'error'
             message['description'] = "%s" % e
             need_restart = True
