@@ -56,6 +56,26 @@ class test_writer(noscript_parser.parser):
 
         return message
 
+    def copy_logs(self):
+            c = docker.Client(base_url='unix://var/run/docker.sock')
+            # only read container logs if we should not restart container
+            # reading log may take a really long time (minute or so)
+            for cnt in c.containers(limit = 10):
+                if 'backrunner' in cnt['Command']:
+                    id = cnt['Id']
+                    try:
+                        fail = '%s/log/%s.stderr.fail' % (self.acl_base_dir, id)
+                        if not os.path.exists(fail):
+                            stderr = c.logs(id, stderr=True, timestamps=True)
+                            if len(stderr) != 0:
+                                with open(fail, 'w') as f:
+                                    f.write(stderr)
+
+                            logging.info("copy_logs: container: %s, error log: %s, size: %d",
+                                id, fail, len(stderr))
+                    except Exception as e:
+                        logging.error("copy_logs: could not read %s container's log: %s", id, e)
+
     def restart_proxy(self):
         try:
             need_new_container = True
@@ -111,25 +131,6 @@ class test_writer(noscript_parser.parser):
                     pass
 
                 message = self.start_container(c)
-            else:
-                # only read container logs if we should not restart container
-                # reading log may take a really long time (minute or so)
-                for cnt in c.containers(limit = 10):
-                    if 'backrunner' in cnt['Command']:
-                        id = cnt['Id']
-                        try:
-                            fail = '%s/log/%s.stderr.fail' % (self.acl_base_dir, id)
-                            if not os.path.exists(fail):
-                                stderr = c.logs(id, stderr=True, timestamps=True)
-                                if len(stderr) != 0:
-                                    with open(fail, 'w') as f:
-                                        f.write(stderr)
-
-                                logging.info("restart_proxy: container: %s, error log: %s, size: %d",
-                                    id, fail, len(stderr))
-                        except Exception as e:
-                            logging.error("restart_proxy: could not read %s container's log: %s", id, e)
-
         except Exception as e:
             logging.error("restart_proxy: could not start new docker container: %s", e)
             message['description'] = 'could not start new docker container: %s' % (e)
@@ -246,6 +247,8 @@ class test_writer(noscript_parser.parser):
 
         logging.info("upload_and_restart: message: %s", message)
         self.send_all(message)
+
+        self.copy_logs()
 
 if __name__ == '__main__':
     t = test_writer(sys.argv[1])
