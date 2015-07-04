@@ -65,8 +65,6 @@ class test_writer(noscript_parser.parser):
             message['metric'] = 666
             message['state'] = 'error'
 
-            id = 'restart'
-            stderr = ''
             c = docker.Client(base_url='unix://var/run/docker.sock')
             try:
                 for cnt in c.containers():
@@ -80,36 +78,27 @@ class test_writer(noscript_parser.parser):
                             need_new_container = False
                             break
 
-                        c.stop(id)
+                        c.stop(id, timeout=1)
                         logging.info("restart_proxy: container has been stopped: %s", id)
                         break
             except Exception as e:
                 logging.error("restart_proxy: could not stop docker container: %s", e)
 
-            # copy containers output
-            for cnt in c.containers(limit = 10):
-                if 'backrunner' in cnt['Command']:
-                    try:
-                        tmp_id = cnt['Id']
-                        # if there was no running backrunner container, ID is not set
-                        # set it to the last running container, it is needed for proper log rename
-                        if id == 'restart':
-                            id = tmp_id
-
-                        fail = '%s/log/%s.stderr.fail' % (self.acl_base_dir, tmp_id)
-                        if not os.path.exists(fail):
-                            stderr = c.logs(tmp_id, stderr=True, timestamps=True)
-                            if len(stderr) != 0:
-                                with open(fail, 'w') as f:
-                                    f.write(stderr)
-
-                            logging.info("restart_proxy: container: %s, error log: %s, size: %d",
-                                tmp_id, fail, len(stderr))
-                    except Exception as e:
-                        logging.error("restart_proxy: could not read %s container's log: %s", tmp_id, e)
-
             logging.info("restart_proxy: need_new_container: %s", need_new_container)
             if need_new_container:
+                # searching for the previous container ID to copy current log
+                id = 'restart'
+                for cnt in c.containers(limit = 10):
+                    if 'backrunner' in cnt['Command']:
+                        # if there was no running backrunner container, ID is not set
+                        # set it to the last running container, it is needed for proper log rename
+
+                        id = cnt['Id']
+                        break
+
+                if id == 'restart':
+                    id += "-" + time.strftime("%d.%m.%Y-%H:%M:%S")
+
                 backrunner_log = '%s/log/backrunner.log' % (self.acl_base_dir)
                 base = os.path.dirname(backrunner_log)
                 new_log = '%s/%s.backrunner.log.fail' % (base, id)
@@ -122,6 +111,25 @@ class test_writer(noscript_parser.parser):
                     pass
 
                 message = self.start_container(c)
+            else:
+                # only read container logs if we should not restart container
+                # reading log may take a really long time (minute or so)
+                for cnt in c.containers(limit = 10):
+                    if 'backrunner' in cnt['Command']:
+                        id = cnt['Id']
+                        try:
+                            fail = '%s/log/%s.stderr.fail' % (self.acl_base_dir, id)
+                            if not os.path.exists(fail):
+                                stderr = c.logs(id, stderr=True, timestamps=True)
+                                if len(stderr) != 0:
+                                    with open(fail, 'w') as f:
+                                        f.write(stderr)
+
+                                logging.info("restart_proxy: container: %s, error log: %s, size: %d",
+                                    id, fail, len(stderr))
+                        except Exception as e:
+                            logging.error("restart_proxy: could not read %s container's log: %s", id, e)
+
         except Exception as e:
             logging.error("restart_proxy: could not start new docker container: %s", e)
             message['description'] = 'could not start new docker container: %s' % (e)
