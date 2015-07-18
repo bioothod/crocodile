@@ -25,6 +25,8 @@ class parser:
         self.host = socket.getfqdn()
         self.previous = previous
 
+        self.messages = []
+
         self.load_acl()
 
         rlist = {}
@@ -104,9 +106,12 @@ class parser:
         for c in self.clients:
             c.send(message)
 
-    def send_multiple_messages(self, messages):
+    def queue(self, message):
+        self.messages.append(message)
+
+    def send_queued_messages(self):
         for c in self.clients:
-            c.send(messages)
+            c.send(self.messages)
 
     def generate_signature(self, key, method, url, headers=None):
         parsed_url = urlparse.urlparse(url)
