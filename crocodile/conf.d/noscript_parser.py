@@ -104,6 +104,10 @@ class parser:
         for c in self.clients:
             c.send(message)
 
+    def send_multiple_messages(self, messages):
+        for c in self.clients:
+            c.send(messages)
+
     def generate_signature(self, key, method, url, headers=None):
         parsed_url = urlparse.urlparse(url)
         queries = urlparse.parse_qsl(parsed_url.query)
