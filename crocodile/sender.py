@@ -46,12 +46,12 @@ def kill_children():
     try:
         p = psutil.Process(parent_pid)
 
-        child_pid = p.get_children(recursive=True)
+        child_pid = p.children(recursive=True)
         for pid in child_pid:
             os.kill(pid.pid, signal.SIGKILL)
 
     except Exception as e:
-        logging.error("Caught exception when killing children of %d" % (parent_pid))
+        logging.error("Caught exception when killing children of %d: %s" % (parent_pid, e))
         logging.error("Killing self :(")
         os.kill(0, signal.SIGKILL)
         return
