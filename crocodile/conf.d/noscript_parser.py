@@ -110,6 +110,7 @@ class parser:
         self.messages.append(message)
 
     def send_queued_messages(self):
+        logging.debug("send_queued_message: sending %d messages", len(self.messages))
         for c in self.clients:
             c.send(self.messages)
 
