@@ -15,17 +15,6 @@ logging.basicConfig(filename='/var/log/supervisor/discrepancy.log',
 logging.getLogger().setLevel(logging.DEBUG)
 
 class stat_parser(noscript_parser.parser):
-    def send_error_message(self, metric, description):
-        message = {}
-        message['service'] = 'discrepancy'
-        message['host'] = self.host
-        message['state'] = 'error'
-        message['metric'] = metric
-        message['description'] = description
-
-        logging.error("send_error_message: %s", message['description'])
-        self.send_all(message)
-
     def parse_groups_stats(self, bname, groups):
         class group_stat:
             def __init__(self):
@@ -69,14 +58,13 @@ class stat_parser(noscript_parser.parser):
 
             stats[group_id] = st
 
-
         message = {}
         message['host'] = self.host
 
         base = None
         for group_id, st in stats.items():
             if st.records_corrupted != 0:
-                self.send_error_message(st.records_corrupted, "bucket: %s, group: %s, corrupted records: %d" %
+                self.send_error_message('discrepancy', st.records_corrupted, "bucket: %s, group: %s, corrupted records: %d" %
                         (bname, group_id, st.records_corrupted))
 
             # do not process zero stats, this can happen either if there is no data at all, and in this case discrepancy is zero,
@@ -96,12 +84,12 @@ class stat_parser(noscript_parser.parser):
             message['service'] = 'discrepancy space %s' % (bname)
             message['metric'] = diff['used_space']
             message['description'] = time.ctime()
-            self.send_all(message)
+            self.queue(message)
 
             message['service'] = 'discrepancy records %s' % (bname)
             message['metric'] = diff['used_records']
             message['description'] = time.ctime()
-            self.send_all(message)
+            self.queue(message)
 
 
     def parse_stats(self, text):
@@ -109,7 +97,7 @@ class stat_parser(noscript_parser.parser):
 
         buckets = j.get('Buckets')
         if buckets == None:
-            self.send_error_message(200, "invalid json in reply: no 'Buckets': '%s'" % text)
+            self.send_error_message('discrepancy', 200, "invalid json in reply: no 'Buckets': '%s'" % text)
             return
 
         message = {}
@@ -118,21 +106,21 @@ class stat_parser(noscript_parser.parser):
         for bname, bucket in buckets.items():
             groups = bucket.get('Group')
             if groups == None:
-                self.send_error_message(200, "bucket: %s, invalid json in reply: no 'Group': '%s'" % (bname, bucket))
+                self.send_error_message('discrepancy', 200, "bucket: %s, invalid json in reply: no 'Group': '%s'" % (bname, bucket))
                 continue
 
             meta = bucket.get('Meta')
             if meta == None:
-                self.send_error_message(200, "bucket: %s, invalid json in reply: no 'Meta': '%s'" % (bname, bucket))
+                self.send_error_message('discrepancy', 200, "bucket: %s, invalid json in reply: no 'Meta': '%s'" % (bname, bucket))
                 continue
 
             meta_groups = meta.get('groups')
             if meta == None:
-                self.send_error_message(200, "bucket: %s, invalid json in reply: no 'Meta.groups': '%s'" % (bname, bucket))
+                self.send_error_message('discrepancy', 200, "bucket: %s, invalid json in reply: no 'Meta.groups': '%s'" % (bname, bucket))
                 continue
 
             if len(groups) != len(meta_groups):
-                #self.send_error_message(200, "bucket: %s: bucket is not fully not connected: connected: %s, must be: %s"
+                #self.send_error_message('discrepancy', 200, "bucket: %s: bucket is not fully not connected: connected: %s, must be: %s"
                 #        % (bname, groups, meta_groups))
                 continue
 
@@ -155,15 +143,16 @@ class stat_parser(noscript_parser.parser):
         try:
             r = requests.get(url, headers=headers, timeout=5)
             if r.status_code != requests.codes.ok:
-                self.send_error_message(r.status_code, "invalid status code: %d: %s" % (r.status_code, r.text))
+                self.send_error_message('discrepancy', r.status_code, "invalid status code: %d: %s" % (r.status_code, r.text))
                 return
 
             text = r.text
         except Exception as e:
-            self.send_error_message(666, "could not read proxy stat: %s" % e)
+            self.send_error_message('discrepancy', 666, "could not read proxy stat: %s" % e)
             return
 
         self.parse_stats(text)
+        self.send_queued_messages()
 
 
 if __name__ == '__main__':
