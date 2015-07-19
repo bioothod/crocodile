@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import json, time, sys, socket, bernhard
+import copy
 import logging
 import hmac
 import hashlib
@@ -106,7 +107,7 @@ class parser:
             c.send(message)
 
     def queue(self, message):
-        self.messages.append(message)
+        self.messages.append(copy.deepcopy(message))
 
     def send_queued_messages(self):
         logging.debug("send_queued_message: sending %d messages", len(self.messages))
