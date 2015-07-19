@@ -112,7 +112,7 @@ class parser:
     def send_queued_messages(self):
         logging.debug("send_queued_message: sending %d messages", len(self.messages))
         for c in self.clients:
-            c.send(self.messages)
+            c.send(*self.messages)
 
     def generate_signature(self, key, method, url, headers=None):
         parsed_url = urlparse.urlparse(url)
