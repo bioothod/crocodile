@@ -71,6 +71,7 @@ class disk_parser(noscript_parser.parser):
     def disk_usage(self, dev, path):
         message = {}
         message['service'] = 'disk ' + dev
+        message['host'] = self.host
 
         try:
             """Return disk usage associated with path."""
