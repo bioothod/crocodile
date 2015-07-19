@@ -97,7 +97,6 @@ class parser:
         logging.error("send_error_message: service: %s, %s", service, message['description'])
         self.send_all(message)
 
-
     def send_all(self, message):
         logging.debug("send_all: %s", message)
 
