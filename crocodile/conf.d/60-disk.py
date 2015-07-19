@@ -109,7 +109,7 @@ class disk_parser(noscript_parser.parser):
             message['state'] = 'error'
             message['description'] = "exception: %s" % (e)
 
-        self.send_all(message)
+        self.queue(message)
 
     def disk(self):
         for part in self.disk_partitions():
@@ -118,3 +118,4 @@ class disk_parser(noscript_parser.parser):
 if __name__ == '__main__':
     p = disk_parser(sys.argv[1], '/var/tmp/crocodile.disk.parser')
     p.disk()
+    p.send_queued_messages()
