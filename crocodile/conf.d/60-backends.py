@@ -18,8 +18,6 @@ class backends_parser(noscript_parser.parser):
     def __init__(self, addr):
         noscript_parser.parser.__init__(self, addr)
 
-        self.tried_backends = []
-
         self.port = 1025
         self.family = socket.AF_INET
 
@@ -44,17 +42,19 @@ class backends_parser(noscript_parser.parser):
         logging.info("addr: %s, backend: %d, state: %d -> %d, err: %d",
                 self.address, st.backend_id, st.state, nst.state, nst.last_start_err)
 
-        self.tried_backends.append(nst)
-
     def backends_stat(self):
+        stopped = []
+
         statuses = self.session.request_backends_status(self.address).get()[0].backends
         for st in statuses:
-            logging.info("addr: %s: backend: %d, state: %s, defrag: %s, err: %d, ro: %d",
+            logging.debug("addr: %s: backend: %d, state: %s, defrag: %s, err: %d, ro: %d",
                     self.address, st.backend_id, st.state, st.defrag_state, st.last_start_err, st.read_only)
 
             if st.state != 1:
+                stopped.append(st)
                 try:
-                    self.start_backend(st)
+                    #self.start_backend(st)
+                    pass
                 except Exception as e:
                     msg = "addr: %s: could not start backend: %d, last-err: %d: %s" % (
                             self.address, st.backend_id, st.last_start_err, e)
@@ -62,15 +62,15 @@ class backends_parser(noscript_parser.parser):
                     logging.error(msg)
                     self.send_error_message('backends', 1, msg)
 
-                    self.tried_backends.append(st)
+        logging.info("addr: %s: parsed backends: %d, stopped: %d", self.address, len(statuses), len(stopped))
 
-        if len(self.tried_backends) != 0:
-            msg = 'addr: %s, started backends:\n' % (self.address)
-            for st in self.tried_backends:
+        if len(stopped) != 0:
+            msg = 'addr: %s, stopped backends: %d\n' % (self.address, len(stopped))
+            for st in stopped:
                 msg += '  backend: %d, state: %d, ro: %d, err: %d\n' % (
                     st.backend_id, st.state, st.defrag_state, st.read_only, st.last_start_err)
 
-            self.send_error_message('backends', len(self.tried_backends), msg)
+            self.send_error_message('backends', len(stopped), msg)
 
 
 if __name__ == '__main__':
