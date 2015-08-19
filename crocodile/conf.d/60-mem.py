@@ -14,10 +14,9 @@ logging.basicConfig(filename='/var/log/supervisor/memory.log',
 logging.getLogger().setLevel(logging.DEBUG)
 
 class memory_parser(noscript_parser.parser):
-    def __init__(self):
-        self.error = 60
-        self.warning = 50
-        self.ioserv = 'dnet_ioserv'
+    error = 60
+    warning = 50
+    ioserv = 'dnet_ioserv'
 
     def get_trace(self):
         out = ''
