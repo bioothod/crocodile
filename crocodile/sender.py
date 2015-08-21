@@ -110,13 +110,13 @@ while True:
             if len(out) != 0:
                 q = ast.literal_eval(out)
                 sender(q)
-
-            signal.alarm(0) # reset signal
         except Exception as e:
             logging.error('%s: exception: stdout: \'%s\', stderrr: \'%s\', error: %s', x, out, err, e)
 
             kill_children()
             pass
+
+        signal.alarm(0) # reset signal
 
     if timeout > 10:
         timeout = 10
