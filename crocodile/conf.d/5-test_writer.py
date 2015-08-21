@@ -31,7 +31,7 @@ class test_writer(noscript_parser.parser):
                 environment     = {
                     'GOGC1': '100',
                     'GOTRACEBACK': 'crash',
-                    'GODEBUG': 'invalidptr=0'
+                    'GODEBUG': 'invalidptr=0,gcstackbarrieroff=1'
                 }
         )
 
