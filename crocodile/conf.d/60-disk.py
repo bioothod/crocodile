@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import noscript_parser
-import os, sys, re, time
+import os, sys, re, time, logging
 
 logging.basicConfig(filename='/var/log/supervisor/disk.log',
         format='%(asctime)s %(levelname)s: disk: %(message)s',
