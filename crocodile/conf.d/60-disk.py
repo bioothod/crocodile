@@ -1,7 +1,12 @@
 #!/usr/bin/python
 
 import noscript_parser
-import os, sys, re
+import os, sys, re, time
+
+logging.basicConfig(filename='/var/log/supervisor/disk.log',
+        format='%(asctime)s %(levelname)s: disk: %(message)s',
+        level=logging.INFO)
+logging.getLogger().setLevel(logging.INFO)
 
 class disk_parser(noscript_parser.parser):
 
@@ -37,7 +42,7 @@ class disk_parser(noscript_parser.parser):
                     logging.info("%s: %s", path, defrag_description)
 
         except Exception as e:
-            pass
+            logging.error("caught error when checking defragmentation: %s", e)
 
         return defrag_in_progress, defrag_description
 
