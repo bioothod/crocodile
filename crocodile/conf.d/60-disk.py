@@ -106,8 +106,8 @@ class disk_parser(noscript_parser.parser):
             if defrag_in_progress:
                 if percent > 90:
                     message['state'] = 'error'
-                elif percent > 88:
-                    message['state'] = 'warning'
+                #elif percent > 88:
+                #    message['state'] = 'warning'
             else:
                 if percent > 86:
                     message['state'] = 'error'
