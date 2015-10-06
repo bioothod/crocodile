@@ -115,6 +115,7 @@ class disk_parser(noscript_parser.parser):
             message['state'] = 'error'
             message['description'] = "exception: %s" % (e)
 
+        logging.debug("dev: %s, path: %s, message: %s", dev, path, message)
         self.queue(message)
 
     def disk(self):
