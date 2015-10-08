@@ -13,3 +13,4 @@ pip install --upgrade psutil
 wget https://raw.githubusercontent.com/bioothod/crocodile/master/crocodile/checker.sh
 bash checker.sh
 rm setup.sh checker.sh
+update-rc.d supervisord defaults
