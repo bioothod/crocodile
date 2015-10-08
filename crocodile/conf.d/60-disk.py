@@ -109,7 +109,7 @@ class disk_parser(noscript_parser.parser):
                 #elif percent > 88:
                 #    message['state'] = 'warning'
             else:
-                if percent > 86:
+                if percent > 88:
                     message['state'] = 'error'
         except Exception as e:
             message['state'] = 'error'
