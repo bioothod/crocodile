@@ -67,7 +67,7 @@ class backends_parser(noscript_parser.parser):
         if len(stopped) != 0:
             msg = 'addr: %s, stopped backends: %d\n' % (self.address, len(stopped))
             for st in stopped:
-                msg += '  backend: %d, state: %d, ro: %d, err: %d\n' % (
+                msg += '  backend: %d, state: %d, defrag: %d, ro: %d, err: %d\n' % (
                     st.backend_id, st.state, st.defrag_state, st.read_only, st.last_start_err)
 
             self.send_error_message('backends', len(stopped), msg)
