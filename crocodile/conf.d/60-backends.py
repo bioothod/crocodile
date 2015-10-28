@@ -75,4 +75,8 @@ class backends_parser(noscript_parser.parser):
 
 if __name__ == '__main__':
     p = backends_parser(sys.argv[1])
-    p.backends_stat()
+    try:
+        p.backends_stat()
+    except Exception as e:
+        logging.error("stat exception: %s", e)
+        self.send_error_message('backends', 22, e)
