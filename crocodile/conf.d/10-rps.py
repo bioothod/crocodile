@@ -45,33 +45,31 @@ class rps_parser(noscript_parser.parser):
         message = {}
         message['host'] = self.host
 
-        for hname, counters in handlers.items():
-            bps = counters.get('bps')
-            if bps == None:
-                self.send_error_message('rps', 200, "invalid json in reply: no 'bps': '%s'" % text)
-                return
+        for hname, metric in handlers.items():
+            RS = metric.get('RS')
+            if RS == None:
+                self.send_error_message('rps', 200, "%s: invalid json in reply: no 'RS' in metric: '%s'" % (hname, text))
+                break
 
-            message['service'] = 'bps %s' % (hname)
-            message['state'] = 'info'
-            message['metric'] = bps
-            self.queue(message)
+            for status, rs in RS.items():
+                bps = rs.get('BPS')
+                if bps == None:
+                    break
+                rps = rs.get('RPS')
+                if rps == None:
+                    break
 
-            rps = counters.get('rps')
-            if rps == None:
-                self.send_error_message('rps', 200, "invalid json in reply: no 'rps': '%s'" % text)
-                return
+                message['state'] = 'info'
+                if status == '500':
+                    message['state'] = 'error'
 
-            if len(rps) != 0:
-                for status, cnt in rps.items():
-                    message['state'] = 'info'
-                    message['service'] = 'rps %s %s' % (status, hname)
-                    message['metric'] = cnt
+                message['service'] = 'bps %s %s' % (status, hname)
+                message['metric'] = bps
+                self.queue(message)
 
-                    if status == "500" and cnt != 0:
-                        message['state'] = 'error'
-
-                    self.queue(message)
-
+                message['service'] = 'rps %s %s' % (status, hname)
+                message['metric'] = rps
+                self.queue(message)
 
 if __name__ == '__main__':
     p = rps_parser(sys.argv[1])
