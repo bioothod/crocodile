@@ -12,8 +12,8 @@ import requests
 
 logging.basicConfig(filename='/var/log/supervisor/test_writer.log',
         format='%(asctime)s %(levelname)s: test_writer: %(message)s',
-        level=logging.DEBUG)
-logging.getLogger().setLevel(logging.DEBUG)
+        level=logging.INFO)
+logging.getLogger().setLevel(logging.INFO)
 
 class test_writer(noscript_parser.parser):
     def start_container(self, c):
@@ -116,17 +116,19 @@ class test_writer(noscript_parser.parser):
                         id = cnt['Id']
                         break
 
-                if id == 'restart':
-                    id += "-" + time.strftime("%d.%m.%Y-%H:%M:%S")
+                t = time.strftime("%Y.%m.%d-%H:%M:%S")
+
+                backrunner_profile = '%s/root/backrunner.profile' % (self.acl_base_dir)
+                new_profile = '%s/root/backrunner.profile-%s' % (self.acl_base_dir, t)
 
                 backrunner_log = '%s/log/backrunner.log' % (self.acl_base_dir)
-                base = os.path.dirname(backrunner_log)
-                new_log = '%s/%s.backrunner.log.fail' % (base, id)
+                new_log = '%s/log/backrunner.log.fail-%s-%s' % (self.acl_base_dir, t, id)
                 try:
                     shutil.move(backrunner_log, new_log)
+                    shutil.move(backrunner_profile, new_profile)
 
-                    logging.info("restart_proxy: log file has been moved: %s -> %s",
-                            backrunner_log, new_log)
+                    logging.info("restart_proxy: log and profile have been moved: %s -> %s, %s -> %s",
+                            backrunner_log, new_log, backrunner_profile, new_profile)
                 except:
                     pass
 
