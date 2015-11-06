@@ -79,7 +79,6 @@ class memory_parser(noscript_parser.parser):
             if sv.percent > self.error:
                 message['state'] = 'error'
 
-        logging.info(message)
         self.send_all(message)
 
 if __name__ == '__main__':
