@@ -25,8 +25,8 @@ class memory_parser(noscript_parser.parser):
             if proc.memory_percent() < self.warning:
                 continue
 
-            out = 'process: %s, total memory usage: %d, process memory usage: %d, warning: %d, error: %d\n' %
-                (proc.name(), proc.memory_percent(), self.warning, self.error, self.critical)
+            out = 'process: %s, total memory usage: %d, process memory usage: %d, warning: %d, error: %d\n' % (
+                    proc.name(), proc.memory_percent(), self.warning, self.error, self.critical)
             if proc.memory_percent() > self.error or total_used_percent > self.error:
                 out += '  PROCESS WILL BE KILLED\n\n\n'
 
