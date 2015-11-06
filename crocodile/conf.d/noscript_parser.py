@@ -99,7 +99,7 @@ class parser:
         self.send_all(message)
 
     def send_all(self, message):
-        logging.debug("send_all: %s", message)
+        logging.info("send_all: %s", message)
 
         message['host'] = self.host
 
@@ -110,7 +110,7 @@ class parser:
         self.messages.append(copy.deepcopy(message))
 
     def send_queued_messages(self):
-        logging.debug("send_queued_message: sending %d messages", len(self.messages))
+        logging.info("send_queued_message: sending %d messages", len(self.messages))
         for c in self.clients:
             c.send(*self.messages)
 
