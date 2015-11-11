@@ -1,17 +1,85 @@
 #!/usr/bin/python
 
+import json
+import logging
 import noscript_parser
 import requests
-import logging
 import sys
-import json
+import time
 
 logging.basicConfig(filename='/var/log/supervisor/rps.log',
         format='%(asctime)s %(levelname)s: rps: %(message)s',
-        level=logging.DEBUG)
-logging.getLogger().setLevel(logging.DEBUG)
+        level=logging.INFO)
+logging.getLogger().setLevel(logging.INFO)
 
 class rps_parser(noscript_parser.parser):
+    def send_exit(self):
+        url = "http://%s:%d/exit/" % (self.host, self.acl_port)
+
+        headers = {}
+        if self.acl_user != '' and self.acl_token != '':
+            headers['Authorization'] = 'riftv1 {0}:{1}'.format(
+                    self.acl_user,
+                    self.generate_signature(self.acl_token, 'GET', url))
+
+        try:
+            r = requests.get(url, headers=headers, timeout=5)
+        except Exception as e:
+            pass
+
+    def parse_bucket_ctl_stat(self, bstat):
+        stat_time = bstat.get('StatTime')
+        if stat_time == None:
+            logging.error("there is no 'StatTime' entry in the bucket ctl stat: %s", bstat)
+            return
+
+        config_time = bstat.get('ConfigTime')
+        if config_time == None:
+            logging.error("there is no 'ConfigTime' entry in the bucket ctl stat: %s", bstat)
+            return
+
+        current_time = bstat.get('CurrentTime')
+        if current_time == None:
+            logging.error("there is no 'CurrentTime' entry in the bucket ctl stat: %s", bstat)
+            return
+
+        stat_update_interval = bstat.get('StatUpdateInterval')
+        if stat_update_interval == None:
+            logging.error("there is no 'StatUpdateInterval' entry in the bucket ctl stat: %s", bstat)
+            return
+
+        config_update_interval = bstat.get('ConfigUpdateInterval')
+        if config_update_interval == None:
+            logging.error("there is no 'ConfigUpdateInterval' entry in the bucket ctl stat: %s", bstat)
+            return
+
+        stime = time.localtime(stat_time)
+        ctime = time.localtime(current_time)
+        conftime = time.localtime(config_time)
+
+        max_stat_time_diff = 5 * stat_update_interval
+        max_config_time_diff = 5 * config_update_interval
+
+        def ts(tm):
+            return time.strftime("%Y-%m-%d/%H:%M:%S/%z")
+
+        if current_time > stat_time + max_stat_time_diff or current_time > config_time + max_config_time_diff:
+            msg = ("stat_time: %s, config_time: %s, current_time: %s, stat-difference: %d seconds, "
+                   "must be at most %d, config-time-difference: %d, must be at most: %d.") % (
+                        ts(stime), ts(conftime), ts(ctime),
+                        current_time-stat_time, max_stat_time_diff,
+                        current_time-config_time, max_config_time_diff)
+            logging.error(msg)
+            message = {}
+            message['host'] = self.host
+            message['state'] = 'error'
+            message['service'] = 'proxy_stat'
+            message['metric'] = 0
+            message['description'] = msg
+            self.queue(message)
+
+            self.send_exit()
+
     def proxy_stat(self):
         url = "http://%s:%d/proxy_stat/" % (self.host, self.acl_port)
 
@@ -41,6 +109,10 @@ class rps_parser(noscript_parser.parser):
         if handlers == None:
             self.send_error_message('rps', 200, "invalid json in reply: no 'handlers': '%s'" % text)
             return
+
+        bctl = j.get('BucketCtlStat')
+        if bctl:
+            self.parse_bucket_ctl_stat(bctl)
 
         message = {}
         message['host'] = self.host
