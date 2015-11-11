@@ -16,18 +16,23 @@ logging.getLogger().setLevel(logging.INFO)
 class memory_parser(noscript_parser.parser):
     error = 60
     warning = 50
+
+    proc_warning = 30
+    proc_error = 60
+    proc_critical = 80
+
     ioserv = 'dnet_ioserv'
     backrunner = 'backrunner'
 
     def get_trace_raw(self, total_used_percent):
         out = ''
         for proc in psutil.process_iter():
-            if proc.memory_percent() < self.warning:
+            if proc.memory_percent() < self.proc_warning:
                 continue
 
             out = 'process: %s, total memory usage: %d, process memory usage: %d, warning: %d, error: %d\n' % (
                     proc.name(), proc.memory_percent(), self.warning, self.error, self.critical)
-            if proc.memory_percent() > self.error or total_used_percent > self.error:
+            if proc.memory_percent() > self.proc_error:
                 out += '  PROCESS WILL BE KILLED\n\n\n'
 
             if proc.name() == self.backrunner:
@@ -45,9 +50,9 @@ class memory_parser(noscript_parser.parser):
                 for pg in proc.memory_maps():
                     out += '%s: rss: %d\n' % (pg.path, pg.rss)
 
-            if total_used_percent > self.error:
+            if proc.memory_percent() > self.proc_critical:
                 os.kill(proc.pid, signal.SIGKILL)
-            elif proc.memory_percent() > self.error:
+            elif proc.memory_percent() > self.proc_error:
                 os.kill(proc.pid, signal.SIGTERM)
 
         return out
