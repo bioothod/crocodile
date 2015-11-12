@@ -5,6 +5,7 @@ import noscript_parser
 import logging
 import os
 import psutil
+import signal
 import subprocess
 import sys
 import time
