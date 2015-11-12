@@ -40,8 +40,7 @@ class memory_parser(noscript_parser.parser):
                 out += '  PROCESS WILL BE KILLED\n\n\n'
 
             if proc.name() == self.backrunner:
-                out += ' Forcing backrunner killing\n\n' % (
-                        self.proc_error, new_error)
+                out += ' Forcing backrunner killing\n\n'
                 force_kill = True
 
                 backrunner_profile = '%s/root/backrunner.profile' % (self.acl_base_dir)
@@ -49,8 +48,7 @@ class memory_parser(noscript_parser.parser):
                     out += f.read()
 
             if proc.name() == self.ioserv:
-                out += ' Forcing ioserv killing\n\n' % (
-                        self.proc_error, new_error)
+                out += ' Forcing ioserv killing\n\n'
                 force_kill = True
 
                 args = ['/usr/bin/gdb', '-ex', 'set pagination 0', '-ex', 'thread apply all bt', '--batch', '-p', str(proc.pid)]
