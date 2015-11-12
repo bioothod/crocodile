@@ -18,8 +18,8 @@ class memory_parser(noscript_parser.parser):
     warning = 50
 
     proc_warning = 30
-    proc_error = 60
-    proc_critical = 80
+    proc_error = 40
+    proc_critical = 50
 
     ioserv = 'dnet_ioserv'
     backrunner = 'backrunner'
@@ -27,6 +27,8 @@ class memory_parser(noscript_parser.parser):
     def get_trace_raw(self, total_used_percent):
         out = ''
         for proc in psutil.process_iter():
+            force_kill = False
+
             if proc.memory_percent() < self.proc_warning:
                 continue
 
@@ -38,11 +40,19 @@ class memory_parser(noscript_parser.parser):
                 out += '  PROCESS WILL BE KILLED\n\n\n'
 
             if proc.name() == self.backrunner:
+                out += ' Forcing backrunner killing\n\n' % (
+                        self.proc_error, new_error)
+                force_kill = True
+
                 backrunner_profile = '%s/root/backrunner.profile' % (self.acl_base_dir)
                 with open(backrunner_profile, 'r') as f:
                     out += f.read()
 
             if proc.name() == self.ioserv:
+                out += ' Forcing ioserv killing\n\n' % (
+                        self.proc_error, new_error)
+                force_kill = True
+
                 args = ['/usr/bin/gdb', '-ex', 'set pagination 0', '-ex', 'thread apply all bt', '--batch', '-p', str(proc.pid)]
                 p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 sdata, err = p.communicate()
@@ -54,7 +64,7 @@ class memory_parser(noscript_parser.parser):
 
             if proc.memory_percent() > self.proc_critical:
                 os.kill(proc.pid, signal.SIGKILL)
-            elif proc.memory_percent() > self.proc_error:
+            elif proc.memory_percent() > self.proc_error or force_kill:
                 os.kill(proc.pid, signal.SIGTERM)
 
         return out
