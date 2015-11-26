@@ -125,12 +125,16 @@ class test_writer(noscript_parser.parser):
                 new_log = '%s/log/backrunner.log.fail-%s-%s' % (self.acl_base_dir, t, id)
                 try:
                     shutil.move(backrunner_log, new_log)
-                    shutil.move(backrunner_profile, new_profile)
-
-                    logging.info("restart_proxy: log and profile have been moved: %s -> %s, %s -> %s",
-                            backrunner_log, new_log, backrunner_profile, new_profile)
                 except:
                     pass
+
+                try:
+                    shutil.move(backrunner_profile, new_profile)
+                except:
+                    pass
+
+                logging.info("restart_proxy: log and profile have been moved: %s -> %s, %s -> %s",
+                        backrunner_log, new_log, backrunner_profile, new_profile)
 
                 message = self.start_container(c)
         except Exception as e:
@@ -218,7 +222,7 @@ class test_writer(noscript_parser.parser):
                 try:
                     sgroups = rep['reply']['success-groups']
                     egroups = rep['reply']['error-groups']
-                    if len(sgroups) != self.acl_success_groups:
+                    if len(sgroups) < self.acl_success_groups:
                         message['state'] = 'warning'
                         message['description'] = "not enough success results: %d instead of %d: %s" % (len(sgroups), self.acl_success_groups, r.text)
                     if len(egroups) != 0:
