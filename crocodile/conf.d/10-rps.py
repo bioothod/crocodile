@@ -102,6 +102,23 @@ class rps_parser(noscript_parser.parser):
 
         self.parse_proxy_stats(text)
 
+    def get_errors(self, js):
+        errors = js.get('errors')
+        if errors == None:
+            return
+
+        ret = []
+        for err in errors:
+            status = err.get('Status')
+            if status == None:
+                continue
+            if int(status) < 500:
+                continue
+
+            ret.append(err)
+
+        return json.dumps(ret, indent=4, separators=(',', ': '))
+
     def parse_proxy_stats(self, text):
         j = json.loads(text)
 
@@ -134,6 +151,7 @@ class rps_parser(noscript_parser.parser):
                 message['state'] = 'info'
                 if status == '500':
                     message['state'] = 'error'
+                    message['description'] = self.get_errors(j)
 
                 message['service'] = 'bps %s %s' % (status, hname)
                 message['metric'] = bps
