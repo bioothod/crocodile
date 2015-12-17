@@ -31,7 +31,8 @@ class disk_parser(noscript_parser.parser):
                 datasort_start_time = 0
                 datasort_completion_time = 0
                 records_removed_size = 0
-                base_size = 1
+                base_size = 0
+                removed_percentage = 0
 
                 m = re.search('base_size: (\d+)', stat_data)
                 if m != None:
@@ -40,8 +41,6 @@ class disk_parser(noscript_parser.parser):
                 m = re.search('records_removed_size: (\d+)', stat_data)
                 if m != None:
                     records_removed_size = int(m.group(1))
-                    defrag_description += '\nremoved_size: %f Gb, removed_percentage: %f' % (
-                            Gb(records_removed_size), records_removed_size * 100.0 / base_size)
 
                 m = re.search('datasort_start_time: (\d+)', stat_data)
                 if m != None:
@@ -53,8 +52,15 @@ class disk_parser(noscript_parser.parser):
 
                 if datasort_start_time > datasort_completion_time:
                     defrag_in_progress = True
-                    defrag_description = 'defragmentation is in progress, started at %s, removed_size: %f Gb, removed_percentage: %f' % (
-                            time.ctime(datasort_start_time), Gb(records_removed_size), records_removed_size * 100.0 / base_size)
+                    defrag_description = 'defragmentation is in progress, started at %s' % (time.ctime(datasort_start_time))
+
+                if base_size == 0:
+                    removed_percentage = 0
+                else:
+                    removed_percentage = records_removed_size * 100.0 / base_size
+
+                defrag_description += '\nremoved_size: %f Gb, removed_percentage: %f' % (Gb(records_removed_size), removed_percentage)
+                if defrag_in_progress:
                     logging.info("%s: %s", path, defrag_description)
 
         except Exception as e:
