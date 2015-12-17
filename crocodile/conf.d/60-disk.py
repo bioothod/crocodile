@@ -8,6 +8,9 @@ logging.basicConfig(filename='/var/log/supervisor/disk.log',
         level=logging.INFO)
 logging.getLogger().setLevel(logging.INFO)
 
+def Gb(size):
+    return float(size) / (1024.0 * 1024.0 * 1024.0)
+
 class disk_parser(noscript_parser.parser):
 
     def elliptics_check_defragmentation(self, path):
@@ -27,6 +30,18 @@ class disk_parser(noscript_parser.parser):
 
                 datasort_start_time = 0
                 datasort_completion_time = 0
+                records_removed_size = 0
+                base_size = 1
+
+                m = re.search('base_size: (\d+)', stat_data)
+                if m != None:
+                    base_size = int(m.group(1))
+
+                m = re.search('records_removed_size: (\d+)', stat_data)
+                if m != None:
+                    records_removed_size = int(m.group(1))
+                    defrag_description += '\nremoved_size: %f Gb, removed_percentage: %f' % (
+                            Gb(records_removed_size), records_removed_size * 100.0 / base_size)
 
                 m = re.search('datasort_start_time: (\d+)', stat_data)
                 if m != None:
@@ -38,7 +53,8 @@ class disk_parser(noscript_parser.parser):
 
                 if datasort_start_time > datasort_completion_time:
                     defrag_in_progress = True
-                    defrag_description = 'defragmentation is in progress, started at %s' % (time.ctime(datasort_start_time))
+                    defrag_description = 'defragmentation is in progress, started at %s, removed_size: %f Gb, removed_percentage: %f' % (
+                            time.ctime(datasort_start_time), Gb(records_removed_size), records_removed_size * 100.0 / base_size)
                     logging.info("%s: %s", path, defrag_description)
 
         except Exception as e:
@@ -90,6 +106,8 @@ class disk_parser(noscript_parser.parser):
                 percent = 0
 
             defrag_in_progress, defrag_description = self.elliptics_check_defragmentation(path)
+
+            defrag_description += '\ntotal: %f Gb, used: %f Gb, free: %f Gb\n' % (Gb(total), Gb(used), Gb(free))
 
             attr = {}
             attr['total'] = total
