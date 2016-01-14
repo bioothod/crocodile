@@ -19,6 +19,8 @@ class parser:
         self.acl_base_dir = '/home/admin/elliptics'
         self.acl_port = 80
         self.acl_success_groups = 2
+        self.defrag_error_percentage = 93
+        self.error_percentage = 94
         self.acl_port_mapping = {
                 80 : 80
         }
@@ -56,6 +58,13 @@ class parser:
                 success_groups = j.get('success_groups')
                 if success_groups != None:
                     self.acl_success_groups = int(success_groups)
+
+                dep = j.get('defrag_error_percentage')
+                if dep != None:
+                    self.defrag_error_percentage = int(dep)
+                ep = j.get('error_percentage')
+                if ep != None:
+                    self.error_percentage = int(ep)
 
                 pm = j.get('port_mapping')
                 if pm != None:
