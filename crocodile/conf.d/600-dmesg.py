@@ -45,15 +45,15 @@ class dmesg_parser(noscript_parser.parser):
 
             line_time = time.time() - self.uptime() + ts / 1000000
             if line_time < time.time() - 3600 * 24:
-                return False
+                return line_time, False
 
             if ts > prev_ts or time.time() > prev_update_time + 3600:
                 prev['timestamp'] = ts
                 prev['update_time'] = time.time()
                 self.write_previous(prev)
-                return True
+                return line_time, True
 
-        return False
+        return time.time(), False
 
     def dmesg(self):
         with io.open('/dev/kmsg', 'rt') as f:
@@ -85,8 +85,9 @@ class dmesg_parser(noscript_parser.parser):
                     prefix = "WARNING"
 
                 total_lines += 1
-                if self.check_line(line):
-                    content += "%s: %s" % (prefix, line)
+                tm, match = self.check_line(line)
+                if match:
+                    content += "%s %s %s" % (time.ctime(tm), prefix, line)
 
             if len(content) != 0:
                 self.send_dmesg(content, total_lines)
