@@ -48,6 +48,12 @@ class test_writer(noscript_parser.parser):
 
         logging.info("start_container: new container has been started: %s", new_cnt)
 
+        state = {}
+        state['restart_time'] = time.time()
+        state['next_check_time'] = time.time() + 15.0
+
+        self.write_previous(state)
+
         message = {}
         message['service'] = 'test_writer'
         message['host'] = self.host
@@ -247,16 +253,33 @@ class test_writer(noscript_parser.parser):
 
         return message, need_restart
 
-    def upload_and_restart(self):
-        message, need_restart = self.check_upload(5)
-        if need_restart:
-            message = self.restart_proxy()
+    def need_check(self):
+        current_time = time.time()
+        next_check_time = current_time
 
-        logging.info("upload_and_restart: message: %s", message)
-        self.send_all(message)
+        prev = self.read_previous()
+        next_check_time_str = prev.get('next_check_time')
+        if next_check_time_str != None:
+            next_check_time = float(next_check_time_str)
+
+        will_check = current_time >= next_check_time
+        logging.info("need_check: current-time: %f, next_check_time: %s, %s, will_check: %s",
+                current_time, next_check_time_str, time.ctime(next_check_time), will_check)
+
+        return will_check
+
+    def upload_and_restart(self):
+        need_check = self.need_check()
+        if need_check:
+            message, need_restart = self.check_upload(5)
+            if need_restart:
+                message = self.restart_proxy()
+
+            logging.info("upload_and_restart: message: %s", message)
+            self.send_all(message)
 
         self.copy_logs()
 
 if __name__ == '__main__':
-    t = test_writer(sys.argv[1])
+    t = test_writer(sys.argv[1], '/var/tmp/crocodile.test_writer.state')
     t.upload_and_restart()
