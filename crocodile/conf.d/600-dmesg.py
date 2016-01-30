@@ -47,7 +47,8 @@ class dmesg_parser(noscript_parser.parser):
             if line_time < time.time() - 3600 * 24.0:
                 return line_time, False
 
-            if ts > prev_ts or time.time() > prev_update_time + 3600.0:
+            #if ts > prev_ts or time.time() > prev_update_time + 3600.0:
+            if ts > prev_ts:
                 prev['timestamp'] = ts
                 prev['update_time'] = time.time()
                 self.write_previous(prev)
