@@ -61,7 +61,7 @@ class rps_parser(noscript_parser.parser):
         max_config_time_diff = 5 * config_update_interval
 
         def ts(tm):
-            return time.strftime("%Y-%m-%d/%H:%M:%S/%z")
+            return time.strftime("%Y-%m-%d/%H:%M:%S/%z", tm)
 
         if current_time > stat_time + max_stat_time_diff or current_time > config_time + max_config_time_diff:
             msg = ("stat_time: %s, config_time: %s, current_time: %s, stat-difference: %d seconds, "
