@@ -21,6 +21,8 @@ class parser:
         self.acl_success_groups = 2
         self.defrag_error_percentage = 93
         self.error_percentage = 94
+        self.allowed_config_update = False
+        self.disable_automatic_update_seconds = 10 * 60
         self.acl_port_mapping = {
                 80 : 80
         }
@@ -65,6 +67,14 @@ class parser:
                 ep = j.get('error_percentage')
                 if ep != None:
                     self.error_percentage = int(ep)
+
+                allowed_config_update = j.get('allowed_config_update')
+                if allowed_config_update != None:
+                    self.allowed_config_update = bool(allowed_config_update)
+
+                disable_automatic_update_seconds = j.get('disable_automatic_update_seconds')
+                if disable_automatic_update_seconds != None:
+                    self.disable_automatic_update_seconds = int(disable_automatic_update_seconds)
 
                 pm = j.get('port_mapping')
                 if pm != None:
