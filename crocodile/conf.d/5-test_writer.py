@@ -33,18 +33,20 @@ class test_writer(noscript_parser.parser):
                     'GOTRACEBACK': 'crash',
                     'GODEBUG': 'gctrace=1',
                     'GOMAXPROCS': 32
-                }
+                },
+                host_config     = c.create_host_config(
+                    binds = {
+                        self.acl_base_dir : {
+                            'bind':     '/mnt/elliptics',
+                            'ro':       False,
+                        },
+                    },
+                    port_bindings = self.acl_port_mapping,
+                    network_mode = 'host'
+                )
         )
 
-        nc = c.start(new_cnt['Id'],
-                binds = {
-                    self.acl_base_dir : {
-                        'bind':     '/mnt/elliptics',
-                        'ro':       False,
-                    },
-                },
-                port_bindings = self.acl_port_mapping
-        )
+        nc = c.start(new_cnt['Id'])
 
         logging.info("start_container: new container has been started: %s", new_cnt)
 
