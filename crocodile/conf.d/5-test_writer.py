@@ -31,7 +31,7 @@ class test_writer(noscript_parser.parser):
                 environment     = {
                     'GOGC': '50',
                     'GOTRACEBACK': 'crash',
-                    'GODEBUG': 'gctrace=1',
+                    'GODEBUG1': 'gctrace=1',
                     'GOMAXPROCS': 32
                 },
                 host_config     = c.create_host_config(
